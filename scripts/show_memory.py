@@ -34,7 +34,8 @@ from priors.memory import (  # noqa: E402
 )
 
 DEFAULT_DB = Path.home() / ".sibyl-memory/priors.db"
-#: read_events truncates to this many entries regardless of the limit passed.
+#: The SDK clamps any read_events limit to this. PriorsMemory.iter_journal
+#: pages past it with the `until` cursor rather than patching the clamp.
 READ_EVENTS_CEILING = 10_000
 
 
@@ -58,10 +59,11 @@ def _trail(memory: PriorsMemory, provider: str, job: int | None) -> list[dict]:
     decision was written before the outcome existed, and the episode was
     written afterwards by a different handle.
 
-    A specific job is fetched with Sibyl's own full-text search rather than
-    ``read_events``, which truncates to the most recent 10,000 entries no
-    matter what limit is passed - so a job early in the replay is invisible to
-    it. Each row carries ``ts``, the write time, which is what orders them.
+    A specific job is fetched with Sibyl's own full-text search, which goes
+    straight to it. Everything for a provider is paged through the journal with
+    ``iter_journal``: a bare ``read_events`` clamps to the most recent 10,000
+    entries, so an early job is invisible to it. Each row carries ``ts``, the
+    write time, which is what orders them.
     """
     rows: list[dict] = []
     if job is not None:
@@ -70,7 +72,7 @@ def _trail(memory: PriorsMemory, provider: str, job: int | None) -> list[dict]:
                 if act.get("job_id") == job:
                     rows.append({"ts": hit.get("ts"), "act": act})
     else:
-        for ev in memory.client.read_events(limit=READ_EVENTS_CEILING):
+        for ev in memory.iter_journal():
             for act in ev.get("acted") or []:
                 if act.get("provider") == provider:
                     rows.append({"ts": ev.get("ts"), "act": act})
@@ -109,7 +111,7 @@ def show(db: Path, provider: str, job: int | None) -> None:
     else:
         print("  (nothing stored)")
 
-    label = "search(job)" if job is not None else "read_events()"
+    label = "search(job)" if job is not None else "iter_journal()"
     print(f"\n-- {label}, write order " + "-" * (48 - len(label)))
     trail = _trail(memory, provider, job)
     if not trail:
@@ -132,8 +134,8 @@ def show(db: Path, provider: str, job: int | None) -> None:
                   f"({act.get('failure_kind') or 'completed'}), prediction was "
                   f"{'right' if act.get('correct') else 'wrong'}")
     if trail and job is None:
-        print(f"\n  ({len(trail)} entries for this provider; read_events is "
-              f"capped at {READ_EVENTS_CEILING:,} by the SDK)")
+        print(f"\n  ({len(trail)} entries for this provider, paged past "
+              f"the {READ_EVENTS_CEILING:,}-row read_events clamp)")
 
 
 def main() -> None:

@@ -205,6 +205,40 @@ class PriorsMemory:
 
     # -- housekeeping -------------------------------------------------------
 
+    def iter_journal(self, *, page: int = 10_000):
+        """Every journal event, oldest-last, paging past the SDK's read cap.
+
+        ``read_events`` clamps any limit to MAX_LIMIT (10,000) and returns the
+        most recent page. That clamp is a deliberate control - SQLite reads a
+        negative LIMIT as unbounded, so an unclamped limit is a context-flood
+        vector - and it is not something to patch around. The supported way to
+        reach the rest is the ``until`` cursor the same method exposes.
+
+        Rows are deduplicated by id because ``until`` filters on ``ts <= ?``
+        inclusively, so the boundary timestamp reappears on the next page.
+        """
+        seen: set = set()
+        until: str | None = None
+        while True:
+            batch = self.client.read_events(limit=page, until=until)
+            if not batch:
+                return
+            fresh = [e for e in batch if e.get("id") not in seen]
+            if not fresh:
+                # A whole page inside one timestamp: the cursor cannot advance,
+                # so stop rather than spin.
+                return
+            for ev in fresh:
+                seen.add(ev.get("id"))
+                yield ev
+            if len(batch) < page:
+                return
+            until = batch[-1]["ts"]
+
+    def journal_size(self) -> int:
+        """Count of journal events, paged rather than capped."""
+        return sum(1 for _ in self.iter_journal())
+
     def size_bytes(self) -> int:
         return self.path.stat().st_size if self.path.exists() else 0
 
