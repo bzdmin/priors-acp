@@ -30,3 +30,12 @@ artifacts/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+
+# Local only - candid strategy notes and account identifiers
+HANDOFF.md

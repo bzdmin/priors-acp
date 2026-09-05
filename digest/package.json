@@ -1,0 +1,23 @@
+{
+  "name": "digest-acp-provider",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal ACP provider agent used as a demonstration counterparty for Priors.",
+  "scripts": {
+    "start": "tsx src/seller.ts",
+    "dev": "tsx watch src/seller.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@account-kit/infra": "^4.84.1",
+    "@anthropic-ai/sdk": "^0.71.0",
+    "@virtuals-protocol/acp-node-v2": "^0.1.12",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
