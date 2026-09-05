@@ -78,6 +78,8 @@ def run_replay(
     calibration_min_support: int = 20,
     priors_writer=None,
     resolver_writer=None,
+    on_decision=None,
+    on_episode=None,
 ) -> ReplayResult:
     """Replay the stream, predicting before each outcome is revealed.
 
@@ -140,6 +142,10 @@ def run_replay(
             result.decisions += 1
             if prediction.memory_contributed:
                 result.memory_backed_decisions += 1
+            # Live operation reacts to a decision as it is made; the backtest
+            # ignores this. Same loop either way.
+            if on_decision is not None:
+                on_decision(view, prediction)
 
         for e in pending:
             state.absorb_outcome(e)
@@ -164,6 +170,9 @@ def run_replay(
         # The resolver's write, after the outcome is known.
         if resolver_writer is not None:
             resolver_writer.write_episode(episode, view.provider)
+
+        if on_episode is not None:
+            on_episode(episode, view)
 
         # Did memory change the actual call?
         actual_call, naive_call = calls.pop(episode.job_id, ("HIRE", "HIRE"))
