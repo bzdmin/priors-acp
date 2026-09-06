@@ -11,10 +11,13 @@ Verification performed (2026-09-01, 224,064 logs, blocks 44,427,013-50,749,122):
     named event.
   * ``JobCreated.data[0]`` decoded as an address falls inside the known
     evaluator set for 3,876 of 3,876 non-zero samples.
-  * ``PaymentReleased.data`` is 90,000 against a ``JobFunded`` amount of
-    100,000 - the payout net of the 10% fee - and its ``topic[2]`` equals the
-    provider from ``JobCreated``, which is what distinguishes it from
-    ``JobCompleted`` (both occur exactly 14,644 times).
+  * ``PaymentReleased.data`` is the payout net of the protocol fee, and its
+    ``topic[2]`` equals the provider from ``JobCreated``, which is what
+    distinguishes it from ``JobCompleted`` (both occur exactly 14,644 times).
+    The fee rate is not constant and nothing here depends on it: the scanned
+    history shows 90,000 released against a 100,000 ``JobFunded`` (10%), while
+    jobs 76736 and 76737 on 2026-09-06 released 9,500 against 10,000 (5%).
+    No feature reads the fee, so this is a note, not an input.
   * ``JobCompleted.data`` is a 32-byte deliverable hash, not an amount.
 
 The four signatures the bundled scanner reports as "UNMAPPED ... cancel /

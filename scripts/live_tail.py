@@ -37,6 +37,65 @@ DEFAULT_DB = Path.home() / ".sibyl-memory/priors.db"
 DEFAULT_CHECKPOINT = Path.home() / ".sibyl-memory/live_cursor.json"
 
 
+def journal_high_water(memory: PriorsMemory) -> int:
+    """Highest block already recorded in the journal, or 0 if it is empty.
+
+    The warm-up has to replay history to rebuild provider counters and the
+    rules Priors earned - there is nowhere else that state comes from. But the
+    journal is append-only, so writing during the warm-up would record all
+    18,367 historical decisions a second time on top of the ones already
+    there, and every count published from the store would be wrong.
+
+    So the replay runs, and the writers below drop anything at or below this
+    block. Entity upserts are unaffected: those are keyed writes, not appends.
+    """
+    high = 0
+    for ev in memory.iter_journal():
+        for act in ev.get("acted") or []:
+            blk = act.get("predicted_at_block") or act.get("resolved_at_block")
+            if blk and blk > high:
+                high = blk
+    return high
+
+
+class _GatedPriorsWriter:
+    """Priors' writer, silent at or below ``after_block``."""
+
+    def __init__(self, inner: PriorsWriter, after_block: int) -> None:
+        self._inner, self._after = inner, after_block
+
+    def recall_experience(self, *a, **kw):
+        return self._inner.recall_experience(*a, **kw)
+
+    def write_decision(self, view, prediction) -> None:
+        if view.funding_block > self._after:
+            self._inner.write_decision(view, prediction)
+
+
+class _GatedResolverWriter:
+    """The resolver's writer, silent at or below ``after_block``.
+
+    Only ``write_episode`` is gated. The upserts are idempotent by key, so
+    replaying them just rewrites the same record with the same content.
+    """
+
+    def __init__(self, inner: ResolverWriter, after_block: int) -> None:
+        self._inner, self._after = inner, after_block
+
+    def write_episode(self, episode, provider) -> None:
+        if episode.resolved_at_block > self._after:
+            self._inner.write_episode(episode, provider)
+
+    def upsert_rule(self, body) -> None:
+        self._inner.upsert_rule(body)
+
+    def upsert_provider(self, *a, **kw) -> None:
+        self._inner.upsert_provider(*a, **kw)
+
+    def upsert_calibration(self, ledger) -> None:
+        self._inner.upsert_calibration(ledger)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
@@ -48,6 +107,10 @@ def main() -> None:
                     help="drain to the chain head and stop, instead of following")
     ap.add_argument("--no-write", action="store_true",
                     help="decide but persist nothing (dry run)")
+    ap.add_argument("--since-block", type=int, default=None,
+                    help="only journal blocks above this; default is the "
+                         "journal's own high-water mark, so a writing run "
+                         "cannot duplicate history it already recorded")
     args = ap.parse_args()
 
     local = LocalDatasetSource(args.dataset)
@@ -72,8 +135,12 @@ def main() -> None:
     memory = None
     if not args.no_write:
         memory = PriorsMemory(args.db)
-        priors_writer = PriorsWriter(memory)
-        resolver_writer = ResolverWriter(memory)
+        after = (args.since_block if args.since_block is not None
+                 else journal_high_water(memory))
+        print(f"journalling     blocks above {after:,}"
+              f"{' (journal high-water)' if args.since_block is None else ''}")
+        priors_writer = _GatedPriorsWriter(PriorsWriter(memory), after)
+        resolver_writer = _GatedResolverWriter(ResolverWriter(memory), after)
 
     live = {"decisions": 0, "episodes": 0, "announced": False}
 
