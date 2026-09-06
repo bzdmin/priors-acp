@@ -51,6 +51,13 @@ const RESPOND_EVERY_MS = Number(process.env.RESPOND_EVERY_MS ?? 10_000);
 // a count of upcoming jobs, set by hand and visible in the environment, so a
 // judge re-running the demo gets the same behaviour. Nothing random decides it.
 let faultsRemaining = Number(process.env.DIGEST_FAULT_NEXT ?? 0);
+// Which jobs have already been chosen for the fault. The requirement handler
+// can fire more than once for a job - a replayed entry, or a rehydrated
+// session - and the usual `status === "open"` guard does not stop it here,
+// because declining is precisely what leaves the status open. Counting down a
+// global tally would therefore fault the first pass and accept the second,
+// which is exactly what happened on job 76935.
+const faultedJobs = new Set<string>();
 const MAX_WORDS = 2000;
 // Haiku 4.5 is the cheapest tier ($1/$5 per 1M in/out) and ample for a 2-3
 // sentence summary, roughly $0.003 per job at the 2000-word ceiling. It takes
@@ -319,12 +326,16 @@ async function main(): Promise<void> {
         return;
       }
 
-      if (faultsRemaining > 0) {
-        faultsRemaining -= 1;
-        log.warn(
-          `[job ${session.jobId}] FAULT INJECTED: declared available, ` +
-            `declining to accept. ${faultsRemaining} remaining.`
-        );
+      const jobKey = String(session.jobId);
+      if (faultedJobs.has(jobKey) || faultsRemaining > 0) {
+        if (!faultedJobs.has(jobKey)) {
+          faultedJobs.add(jobKey);
+          faultsRemaining -= 1;
+          log.warn(
+            `[job ${jobKey}] FAULT INJECTED: declared available, declining ` +
+              `to accept. ${faultsRemaining} further job(s) will be faulted.`
+          );
+        }
         // No setBudget, no rejection. The job is simply left to expire, which
         // is what a broken availability claim looks like on chain: created,
         // never answered. Rejecting instead would be a different signal.
