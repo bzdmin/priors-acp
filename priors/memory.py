@@ -52,6 +52,7 @@ from sibyl_memory_client import FREE_TIER_CAP_BYTES, MemoryClient
 
 from .features import DecisionView
 from .predict import CalibrationLedger, Prediction, Rule
+from .coordination import Observation, ResponseRecord
 from .resolver import Episode
 
 def _load_credentials(path: Path) -> dict[str, Any]:
@@ -71,9 +72,18 @@ def _load_credentials(path: Path) -> dict[str, Any]:
         return {}
 
 
+def _response_key(provider: str, declaration_type: str) -> str:
+    return f"{provider.lower()}-{declaration_type}"
+
+
 CATEGORY_PROVIDER = "provider"
 CATEGORY_RULE = "rule"
 CATEGORY_CALIBRATION = "calibration"
+#: Coordination state. One row per (counterparty, declaration type), holding
+#: what the counterparty claimed and what the resolver later observed. Written
+#: only by ResolverWriter and read only by PriorsWriter, so the party whose
+#: claim is being judged can never write the judgement.
+CATEGORY_RESPONSE = "response_record"
 
 #: Episodes retained per provider on the WARM entity. Bounded in place, so
 #: this costs a fixed 2.5 KB per provider no matter how long Priors runs.
@@ -283,6 +293,30 @@ class PriorsWriter:
     ) -> RecalledExperience:
         return self._m.recall_experience(provider, client, amount)
 
+    def recall_response_record(
+        self, provider: str, declaration_type: str = "availability"
+    ) -> ResponseRecord | None:
+        """The counterparty's declaration history, or None if there is none.
+
+        None is the deletion condition, and the gate reads it as "unknown"
+        rather than "untrustworthy": an unrecorded counterparty is treated as
+        typical for the marketplace, not as suspect.
+        """
+        body = self._m._get(
+            CATEGORY_RESPONSE, _response_key(provider, declaration_type)
+        )
+        if not body:
+            return None
+        return ResponseRecord(
+            provider=body["provider"],
+            declaration_type=body.get("declaration_type", declaration_type),
+            declared=int(body.get("declared", 0)),
+            observations=tuple(
+                Observation(int(o["block"]), bool(o["confirmed"]))
+                for o in body.get("observations") or []
+            ),
+        )
+
     def write_decision(self, view: DecisionView, prediction: Prediction) -> None:
         """Written before the outcome is known. The load-bearing entry."""
         if not self._m._should_journal(view.provider):
@@ -391,6 +425,72 @@ class ResolverWriter:
                 # Archiving is bookkeeping. A store that refuses it must not
                 # take down a replay that has already produced its decisions.
                 pass
+
+    def record_declaration(
+        self, provider: str, declaration_type: str = "availability"
+    ) -> None:
+        """Count a declaration Priors received, whatever it said.
+
+        Counted even when the declaration stops Priors creating a job, so a
+        counterparty that dodges being tested by always claiming unavailable
+        cannot bank a perfect record by never being observed.
+        """
+        key = _response_key(provider, declaration_type)
+        body = self._m._get(CATEGORY_RESPONSE, key) or {
+            "type": "response_record",
+            "provider": provider.lower(),
+            "declaration_type": declaration_type,
+            "declared": 0,
+            "observations": [],
+        }
+        body["declared"] = int(body.get("declared", 0)) + 1
+        self._m.client.set_entity(CATEGORY_RESPONSE, key, body)
+
+    def record_response_observation(
+        self,
+        provider: str,
+        *,
+        block: int,
+        confirmed: bool,
+        job_id: int,
+        declaration_type: str = "availability",
+    ) -> ResponseRecord:
+        """What actually happened after Priors acted on a declaration.
+
+        Resolver-owned, and deliberately so: the counterparty declares, Priors
+        decides, and only this handle records whether the declaration held.
+        Neither of the other two can write here, which is what stops a claim
+        being marked correct by the party that made it.
+
+        Idempotent per job, so re-running the observer after a restart cannot
+        count the same outcome twice.
+        """
+        key = _response_key(provider, declaration_type)
+        body = self._m._get(CATEGORY_RESPONSE, key) or {
+            "type": "response_record",
+            "provider": provider.lower(),
+            "declaration_type": declaration_type,
+            "declared": 0,
+            "observations": [],
+        }
+        obs = list(body.get("observations") or [])
+        if any(int(o.get("job_id", -1)) == job_id for o in obs):
+            pass   # already recorded; leave the store untouched
+        else:
+            obs.append(
+                {"block": block, "confirmed": confirmed, "job_id": job_id}
+            )
+            body["observations"] = obs
+            self._m.client.set_entity(CATEGORY_RESPONSE, key, body)
+        return ResponseRecord(
+            provider=body["provider"],
+            declaration_type=declaration_type,
+            declared=int(body.get("declared", 0)),
+            observations=tuple(
+                Observation(int(o["block"]), bool(o["confirmed"]))
+                for o in body.get("observations") or []
+            ),
+        )
 
     def upsert_calibration(self, ledger: CalibrationLedger) -> None:
         """The ledger exists only here. It is the most obviously
