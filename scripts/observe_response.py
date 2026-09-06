@@ -12,9 +12,16 @@ the ACP SDK. The event carries no setter address, so this is recorded as a
 response rather than described as provider acceptance.
 
 A job with no BudgetSet is only a broken promise once it can no longer get
-one. Until it expires or is rejected it is simply pending, and this refuses to
-record anything, because scoring a live job as a failure would manufacture the
-result the whole mechanism is supposed to measure.
+one. While the job's own deadline is still ahead it is simply pending, and
+this refuses to record anything, because scoring a live job as a failure would
+manufacture the result the whole mechanism is supposed to measure.
+
+The deadline comes from ``expired_at`` on the job's own JobCreated event, and
+block time is chain data, so a missed window is observable without waiting for
+anyone to send an expiry transaction. That is not a shortcut: nothing expires
+these jobs automatically. Only 3,112 of the 40,161 scanned jobs that never
+reached BudgetSet ever emitted JobExpired, so waiting for one would leave most
+broken promises permanently unscoreable.
 
     python scripts/observe_response.py --job 76736 --from-block 50951600
     python scripts/observe_response.py --job 76736 --from-block 50951600 --dry-run
@@ -45,6 +52,7 @@ def scan(job_id: int, from_block: int, rpc: str | None) -> dict:
     happened.
     """
     source = ChainSource(from_block, rpc_url=rpc, confirmations=1)
+    head = source.head()
     events = [e for e in source.iter_events() if e.job_id == job_id]
     events.sort(key=lambda e: (e.block, e.log_index))
 
@@ -52,16 +60,28 @@ def scan(job_id: int, from_block: int, rpc: str | None) -> dict:
     budget = next((e for e in events if e.kind == "BudgetSet"), None)
     dead = next((e for e in events if e.kind in DEAD), None)
 
+    created = next((e for e in events if e.kind == "JobCreated"), None)
+    expired_at = created.fields.get("expired_at") if created else None
+
     if budget is not None:
         state, block, confirmed = "responded", budget.block, True
     elif dead is not None:
         state, block, confirmed = "died unanswered", dead.block, False
+    elif expired_at and source.head_timestamp() > int(expired_at):
+        # The deadline is in the job's own JobCreated event and block time is
+        # chain data, so a missed window is observable without anyone sending
+        # an expiry transaction. That matters: nothing expires these jobs
+        # automatically. Only 3,112 of the 40,161 scanned jobs that never
+        # reached BudgetSet ever emitted JobExpired, so waiting for one would
+        # leave most broken promises permanently unscoreable.
+        state, block, confirmed = "deadline passed unanswered", head, False
     else:
         state, block, confirmed = "pending", None, None
 
     return {
         "events": events, "kinds": kinds, "state": state,
         "block": block, "confirmed": confirmed,
+        "expired_at": expired_at,
         "provider": next(
             (e.fields.get("provider") for e in events if e.kind == "JobCreated"),
             None,

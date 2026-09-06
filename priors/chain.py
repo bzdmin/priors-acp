@@ -148,6 +148,11 @@ class ChainSource:
     def head(self) -> int:
         return int(self._rpc.call("eth_blockNumber", []), 16)
 
+    def head_timestamp(self) -> int:
+        """Block time at the head, for deadlines that live in chain data."""
+        blk = self._rpc.call("eth_getBlockByNumber", ["latest", False])
+        return int(blk["timestamp"], 16)
+
     def safe_head(self) -> int:
         """Deepest block considered settled enough to decide against."""
         return self.head() - self.confirmations
