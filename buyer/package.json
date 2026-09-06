@@ -1,0 +1,21 @@
+{
+  "name": "priors-acp-buyer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Priors' buyer runtime: asks the predictor whether to hire, then executes the ACP job.",
+  "scripts": {
+    "hire": "tsx src/hire.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@account-kit/infra": "^4.84.1",
+    "@virtuals-protocol/acp-node-v2": "^0.1.12",
+    "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
