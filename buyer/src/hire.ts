@@ -228,7 +228,41 @@ async function main(): Promise<void> {
     }
   });
 
-  // 3. Create the job. `evaluatorAddress` omitted on purpose - see the header.
+  // 3. Start the agent. Nothing is dispatched before this: `start()` is what
+  // hydrates sessions for jobs already in flight and begins delivering entry
+  // events. Creating a job without it produces an on-chain job that this
+  // process then ignores.
+  await priors.start();
+  log.info("listening");
+
+  const shutdown = async (signal: NodeJS.Signals) => {
+    log.info(`received ${signal}, shutting down`);
+    await priors.stop();
+    process.exit(0);
+  };
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
+
+  // 4. Resume before creating. After `start()` the SDK has rebuilt a session
+  // for every active job this wallet is on, so a restart is already funding
+  // whatever it left mid-flight. Creating another job here would quietly pile
+  // a second one on top - which is exactly what happened on the first run of
+  // this script, before this guard existed.
+  const inFlight = priors.sessions.filter(
+    (s) =>
+      s.chainId === CHAIN_ID &&
+      s.roles.includes("client") &&
+      !["completed", "rejected", "expired"].includes(s.status)
+  );
+  if (inFlight.length > 0) {
+    log.info(`resuming ${inFlight.length} in-flight job(s), creating none:`);
+    for (const s of inFlight) {
+      log.info(`  - job ${s.jobId}  status=${s.status}`);
+    }
+    return;
+  }
+
+  // 5. Create the job. `evaluatorAddress` omitted on purpose - see the header.
   try {
     const jobId = await priors.createJobByOfferingName(
       CHAIN_ID,
