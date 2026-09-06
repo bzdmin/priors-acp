@@ -84,6 +84,12 @@ CATEGORY_CALIBRATION = "calibration"
 #: only by ResolverWriter and read only by PriorsWriter, so the party whose
 #: claim is being judged can never write the judgement.
 CATEGORY_RESPONSE = "response_record"
+#: The counterparty's own claims, one row per job it was asked about. Written
+#: only by DeclarationWriter, which is the handle a counterparty holds. The
+#: count of these rows is what "declared" means, so it is derived from what the
+#: counterparty actually wrote rather than tallied in a record it shares with
+#: the resolver. Nothing here is trusted; it is only evidence to be scored.
+CATEGORY_DECLARATION = "declaration"
 
 #: Episodes retained per provider on the WARM entity. Bounded in place, so
 #: this costs a fixed 2.5 KB per provider no matter how long Priors runs.
@@ -249,6 +255,25 @@ class PriorsMemory:
         """Count of journal events, paged rather than capped."""
         return sum(1 for _ in self.iter_journal())
 
+    def declarations(
+        self, provider: str, declaration_type: str = "availability"
+    ) -> list[dict]:
+        """Every claim this counterparty has written about itself."""
+        out = []
+        for row in self.client.list_entities(CATEGORY_DECLARATION, limit=1000):
+            body = row.get("body") or row
+            if body.get("provider") != provider.lower():
+                continue
+            if body.get("declaration_type") != declaration_type:
+                continue
+            out.append(body)
+        return out
+
+    def count_declarations(
+        self, provider: str, declaration_type: str = "availability"
+    ) -> int:
+        return len(self.declarations(provider, declaration_type))
+
     def size_bytes(self) -> int:
         return self.path.stat().st_size if self.path.exists() else 0
 
@@ -305,16 +330,34 @@ class PriorsWriter:
         body = self._m._get(
             CATEGORY_RESPONSE, _response_key(provider, declaration_type)
         )
+        declared = self._m.count_declarations(provider, declaration_type)
         if not body:
-            return None
+            if not declared:
+                return None
+            # Declarations exist but nothing has been observed yet. That is a
+            # real state, not an absent one: coverage is zero and reliability
+            # is still the prior.
+            return ResponseRecord(
+                provider=provider.lower(),
+                declaration_type=declaration_type,
+                declared=declared,
+            )
         return ResponseRecord(
             provider=body["provider"],
             declaration_type=body.get("declaration_type", declaration_type),
-            declared=int(body.get("declared", 0)),
+            declared=declared,
             observations=tuple(
                 Observation(int(o["block"]), bool(o["confirmed"]))
                 for o in body.get("observations") or []
             ),
+        )
+
+    def recall_declaration(
+        self, provider: str, job_ref: str
+    ) -> dict | None:
+        """The counterparty's claim about one specific request."""
+        return self._m._get(
+            CATEGORY_DECLARATION, f"{provider.lower()}-{job_ref}"
         )
 
     def write_decision(self, view: DecisionView, prediction: Prediction) -> None:
@@ -345,6 +388,51 @@ class PriorsWriter:
                 }
             ]
         )
+
+
+class DeclarationWriter:
+    """The counterparty's handle. Writes claims about itself and nothing else.
+
+    This is the weakest handle in the system by design. It cannot write a
+    decision, cannot write an observation, and cannot touch the record that
+    scores its own claims. A counterparty holding it can say anything it
+    likes; what that claim is worth is decided elsewhere, from what was
+    observed afterwards.
+    """
+
+    def __init__(self, memory: PriorsMemory, agent: str) -> None:
+        self._m = memory
+        self._agent = agent.lower()
+
+    def declare(
+        self,
+        *,
+        job_ref: str,
+        status: str,
+        block: int,
+        declaration_type: str = "availability",
+        note: str | None = None,
+    ) -> dict:
+        """Record a claim about the counterparty's own current state.
+
+        ``job_ref`` scopes the claim to one request, so a declaration cannot
+        be quietly reused to cover a job it was never made about.
+        """
+        body = {
+            "type": "declaration",
+            "declaration_type": declaration_type,
+            "provider": self._agent,
+            "job_ref": str(job_ref),
+            "status": status,
+            "declared_at_block": block,
+            "provenance": "agent-declaration",
+        }
+        if note:
+            body["note"] = note
+        self._m.client.set_entity(
+            CATEGORY_DECLARATION, f"{self._agent}-{job_ref}", body
+        )
+        return body
 
 
 class ResolverWriter:
@@ -425,26 +513,6 @@ class ResolverWriter:
                 # Archiving is bookkeeping. A store that refuses it must not
                 # take down a replay that has already produced its decisions.
                 pass
-
-    def record_declaration(
-        self, provider: str, declaration_type: str = "availability"
-    ) -> None:
-        """Count a declaration Priors received, whatever it said.
-
-        Counted even when the declaration stops Priors creating a job, so a
-        counterparty that dodges being tested by always claiming unavailable
-        cannot bank a perfect record by never being observed.
-        """
-        key = _response_key(provider, declaration_type)
-        body = self._m._get(CATEGORY_RESPONSE, key) or {
-            "type": "response_record",
-            "provider": provider.lower(),
-            "declaration_type": declaration_type,
-            "declared": 0,
-            "observations": [],
-        }
-        body["declared"] = int(body.get("declared", 0)) + 1
-        self._m.client.set_entity(CATEGORY_RESPONSE, key, body)
 
     def record_response_observation(
         self,
