@@ -90,6 +90,11 @@ CATEGORY_RESPONSE = "response_record"
 #: counterparty actually wrote rather than tallied in a record it shares with
 #: the resolver. Nothing here is trusted; it is only evidence to be scored.
 CATEGORY_DECLARATION = "declaration"
+#: What Priors needs a counterparty to decide, one row per pending job.
+#: Written only by PriorsWriter. This is what makes the store the coordination
+#: surface rather than a noticeboard: the counterparty answers a specific
+#: request rather than announcing itself whenever it feels like it.
+CATEGORY_REQUEST = "request"
 
 #: Episodes retained per provider on the WARM entity. Bounded in place, so
 #: this costs a fixed 2.5 KB per provider no matter how long Priors runs.
@@ -352,6 +357,32 @@ class PriorsWriter:
             ),
         )
 
+    def request_declaration(
+        self,
+        provider: str,
+        *,
+        job_ref: str,
+        block: int,
+        declaration_type: str = "availability",
+    ) -> dict:
+        """Ask a counterparty to declare, before any job exists on chain.
+
+        Priors owns this row. The counterparty can read it and answer it but
+        cannot create one, so it cannot invent a request to answer.
+        """
+        body = {
+            "type": "request",
+            "declaration_type": declaration_type,
+            "provider": provider.lower(),
+            "job_ref": str(job_ref),
+            "requested_at_block": block,
+            "status": "pending",
+        }
+        self._m.client.set_entity(
+            CATEGORY_REQUEST, f"{provider.lower()}-{job_ref}", body
+        )
+        return body
+
     def recall_declaration(
         self, provider: str, job_ref: str
     ) -> dict | None:
@@ -403,6 +434,28 @@ class DeclarationWriter:
     def __init__(self, memory: PriorsMemory, agent: str) -> None:
         self._m = memory
         self._agent = agent.lower()
+
+    def pending_requests(
+        self, declaration_type: str = "availability"
+    ) -> list[dict]:
+        """Requests addressed to this counterparty that it has not answered.
+
+        Reading is not writing: the counterparty can see what it has been
+        asked, and answering is the only thing it can do about it.
+        """
+        out = []
+        for row in self._m.client.list_entities(CATEGORY_REQUEST, limit=1000):
+            body = row.get("body") or row
+            if body.get("provider") != self._agent:
+                continue
+            if body.get("declaration_type") != declaration_type:
+                continue
+            already = self._m._get(
+                CATEGORY_DECLARATION, f"{self._agent}-{body['job_ref']}"
+            )
+            if already is None:
+                out.append(body)
+        return out
 
     def declare(
         self,
