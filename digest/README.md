@@ -15,8 +15,8 @@ Registered on the Virtuals Service Registry as `textDigest`:
 
 | | |
 |---|---|
-| requirement | `{ text: string }` — up to ~2000 words |
-| deliverable | `{ summary: string }` — 2-3 sentences |
+| requirement | `{ text: string }`, up to ~2000 words |
+| deliverable | `{ summary: string }`, 2-3 sentences |
 | price | 0.01 USDC (read from the registry at startup, not hardcoded) |
 | SLA | 5 minutes |
 
@@ -37,7 +37,7 @@ Rejection happens at the requirement stage, before anything is committed
 on-chain, for: an offering name other than `textDigest`, an unparseable
 payload, a missing or empty `text` field, or input over 2000 words.
 
-Protocol behaviour is deterministic — the same job always yields the same
+Protocol behaviour is deterministic, so the same job always yields the same
 accept/reject decision and the same budget. A language model writes only the
 summary prose. It never decides whether or how to transact. If
 `ANTHROPIC_API_KEY` is absent or the call fails, Digest falls back to

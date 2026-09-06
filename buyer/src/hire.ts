@@ -92,25 +92,58 @@ type RuleApplied = {
   why: string;
 };
 
-/** Ask Priors. Throws rather than guessing if the predictor cannot be run. */
-function askPriors(provider: string, amountUsdc: number): Decision {
+type Coordination = {
+  job_ref: string;
+  declaration: { status: string; declared_at_block: number; provenance: string } | null;
+  waited_for_answer: boolean;
+  p_respond: number;
+  response_bar: number;
+  response_gate: boolean;
+  proceed: boolean;
+  blocked_by_coordination: boolean;
+  memory_used: boolean;
+  record: { declared: number; observations: number; coverage: number | null } | null;
+};
+
+function python(script: string, args: string[]): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  const script = path.resolve(here, "../../scripts/decide.py");
-  const python = process.env.PYTHON ?? "python";
-
-  const run = spawnSync(
-    python,
-    [script, "--provider", provider, "--amount", String(amountUsdc)],
-    { encoding: "utf8" }
-  );
-
+  const target = path.resolve(here, "../../scripts/" + script);
+  const run = spawnSync(process.env.PYTHON ?? "python", [target, ...args], {
+    encoding: "utf8",
+  });
   if (run.error) throw run.error;
   if (run.status !== 0) {
     throw new Error(
-      `decide.py exited ${run.status}: ${run.stderr?.trim() || "(no stderr)"}`
+      `${script} exited ${run.status}: ${run.stderr?.trim() || "(no stderr)"}`
     );
   }
-  return JSON.parse(run.stdout) as Decision;
+  return run.stdout;
+}
+
+/**
+ * Ask the provider whether it can actually take this job, before creating one.
+ *
+ * Rules-v2 has already said the job would probably complete if funded. That
+ * says nothing about the marketplace's largest failure: 53.31% of created jobs
+ * never reach a provider response at all. So Priors asks, and weighs the answer
+ * by what it remembers of this provider's earlier answers.
+ */
+function coordinate(provider: string, pComplete: number): Coordination {
+  const args = ["--provider", provider, "--p-complete", String(pComplete)];
+  if (process.env.COORDINATION_TIMEOUT) {
+    args.push("--timeout", process.env.COORDINATION_TIMEOUT);
+  }
+  if (process.env.PRIORS_NO_MEMORY === "1") args.push("--no-memory");
+  return JSON.parse(python("coordinate.py", args)) as Coordination;
+}
+
+/** Ask Priors. Throws rather than guessing if the predictor cannot be run. */
+function askPriors(provider: string, amountUsdc: number): Decision {
+  return JSON.parse(
+    python("decide.py", [
+      "--provider", provider, "--amount", String(amountUsdc),
+    ])
+  ) as Decision;
 }
 
 function reportDecision(d: Decision, provider: string): void {
@@ -152,7 +185,43 @@ async function main(): Promise<void> {
     return;
   }
 
-  // 2. Only now connect a wallet.
+  // 2. Coordinate. Rules-v2 has said the job would likely complete if funded;
+  // this asks whether the provider will respond at all, and weighs the answer
+  // by what Priors remembers of this provider's earlier answers. Still no
+  // wallet, so a refusal here costs nothing.
+  const coord = coordinate(provider, decision.with_memory.p);
+  console.log("");
+  log.info(`coordination  ref ${coord.job_ref}`);
+  log.info(
+    `  provider says        : ${
+      coord.declaration ? coord.declaration.status : "nothing (no answer)"
+    }`
+  );
+  if (coord.record) {
+    log.info(
+      `  its record           : ${coord.record.observations} observed of ${coord.record.declared} declared`
+    );
+  } else {
+    log.info("  its record           : none - unknown counterparty");
+  }
+  log.info(
+    `  will it respond      : ${coord.p_respond.toFixed(4)} vs bar ${coord.response_bar} -> ${
+      coord.response_gate ? "PASS" : "FAIL"
+    }`
+  );
+  log.info(`  memory recalled      : ${coord.memory_used ? "yes" : "no (deletion condition)"}`);
+  console.log("");
+
+  if (!coord.proceed) {
+    log.info(
+      coord.blocked_by_coordination
+        ? "coordination declined a job Rules-v2 approved - no job created, nothing spent."
+        : "not proceeding - no job created, nothing spent."
+    );
+    return;
+  }
+
+  // 3. Only now connect a wallet.
   const priors = await AcpAgent.create({
     evmProvider: await PrivyAlchemyEvmProviderAdapter.create({
       walletAddress: requireEnv("PRIORS_WALLET_ADDRESS") as `0x${string}`,
@@ -228,7 +297,7 @@ async function main(): Promise<void> {
     }
   });
 
-  // 3. Start the agent. Nothing is dispatched before this: `start()` is what
+  // 4. Start the agent. Nothing is dispatched before this: `start()` is what
   // hydrates sessions for jobs already in flight and begins delivering entry
   // events. Creating a job without it produces an on-chain job that this
   // process then ignores.
@@ -243,7 +312,7 @@ async function main(): Promise<void> {
   process.once("SIGINT", shutdown);
   process.once("SIGTERM", shutdown);
 
-  // 4. Resume before creating. After `start()` the SDK has rebuilt a session
+  // 5. Resume before creating. After `start()` the SDK has rebuilt a session
   // for every active job this wallet is on, so a restart is already funding
   // whatever it left mid-flight. Creating another job here would quietly pile
   // a second one on top - which is exactly what happened on the first run of
@@ -262,7 +331,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  // 5. Create the job. `evaluatorAddress` omitted on purpose - see the header.
+  // 6. Create the job. `evaluatorAddress` omitted on purpose - see the header.
   try {
     const jobId = await priors.createJobByOfferingName(
       CHAIN_ID,

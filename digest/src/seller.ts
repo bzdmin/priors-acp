@@ -1,6 +1,9 @@
 import { base } from "@account-kit/infra";
 import Anthropic from "@anthropic-ai/sdk";
 import dotenv from "dotenv";
+import { execFile } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   AcpAgent,
   AssetToken,
@@ -13,7 +16,7 @@ import {
 dotenv.config({ quiet: true });
 
 // ---------------------------------------------------------------------------
-// Digest — a minimal ACP provider (seller) agent.
+// Digest: a minimal ACP provider (seller) agent.
 //
 // Registered offering:
 //   name         textDigest
@@ -29,14 +32,28 @@ dotenv.config({ quiet: true });
 // Required env (see .env.example):
 //   SELLER_WALLET_ADDRESS, SELLER_WALLET_ID, SELLER_SIGNER_PRIVATE_KEY
 // Optional:
-//   ANTHROPIC_API_KEY  — without it, Digest falls back to extractive
+//   ANTHROPIC_API_KEY  : without it, Digest falls back to extractive
 //                        summarisation so a demo never dies on a missing key.
 // ---------------------------------------------------------------------------
 
 const OFFERING_NAME = "textDigest";
+
+// Coordination. Digest answers the requests Priors writes to the shared store,
+// which is what makes the store the coordination surface rather than a
+// noticeboard: it responds to a specific reference, it does not announce
+// itself. The memory client is Python, so this shells out to the same scripts
+// the buyer uses; a second implementation of the store in another language is
+// the one thing that could put the two agents out of step.
+const RESPOND_EVERY_MS = Number(process.env.RESPOND_EVERY_MS ?? 10_000);
+
+// Controlled fault injection. Digest declares itself available and then
+// declines to act on that claim, so Priors can observe a broken promise. It is
+// a count of upcoming jobs, set by hand and visible in the environment, so a
+// judge re-running the demo gets the same behaviour. Nothing random decides it.
+let faultsRemaining = Number(process.env.DIGEST_FAULT_NEXT ?? 0);
 const MAX_WORDS = 2000;
 // Haiku 4.5 is the cheapest tier ($1/$5 per 1M in/out) and ample for a 2-3
-// sentence summary — roughly $0.003 per job at the 2000-word ceiling. It takes
+// sentence summary, roughly $0.003 per job at the 2000-word ceiling. It takes
 // neither `thinking` nor `effort`, so this stays a plain request.
 const SUMMARY_MODEL = "claude-haiku-4-5";
 
@@ -64,7 +81,7 @@ const wordCount = (s: string): number => (s.trim().match(/\S+/g) ?? []).length;
 
 const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 
-/** First few sentences — the deterministic fallback when no model is available. */
+/** First few sentences, the deterministic fallback when no model is available. */
 function extractiveSummary(text: string): string {
   const flat = text.replace(/\s+/g, " ").trim();
   const sentences = flat.match(/[^.!?]+[.!?]+/g) ?? [];
@@ -170,7 +187,7 @@ async function main(): Promise<void> {
       : "summariser: extractive fallback (ANTHROPIC_API_KEY not set)"
   );
 
-  // Price comes from the registry, never hardcoded — so editing the offering
+  // Price comes from the registry, never hardcoded, so editing the offering
   // on app.virtuals.io is enough to change what Digest quotes.
   let offeringsByName = new Map<string, AcpAgentOffering>();
   try {
@@ -261,7 +278,7 @@ async function main(): Promise<void> {
         tag: string,
         detail: string
       ): Promise<void> => {
-        log.job(session.jobId, `rejecting — ${detail} (tag: "${tag}")`);
+        log.job(session.jobId, `rejecting: ${detail} (tag: "${tag}")`);
         await session.sendMessage(detail);
         await session.reject(tag);
       };
@@ -302,9 +319,21 @@ async function main(): Promise<void> {
         return;
       }
 
+      if (faultsRemaining > 0) {
+        faultsRemaining -= 1;
+        log.warn(
+          `[job ${session.jobId}] FAULT INJECTED: declared available, ` +
+            `declining to accept. ${faultsRemaining} remaining.`
+        );
+        // No setBudget, no rejection. The job is simply left to expire, which
+        // is what a broken availability claim looks like on chain: created,
+        // never answered. Rejecting instead would be a different signal.
+        return;
+      }
+
       log.job(
         session.jobId,
-        `accepted "${offeringName}" — ${wordCount(check.text)} words`
+        `accepted "${offeringName}", ${wordCount(check.text)} words`
       );
 
       try {
@@ -319,6 +348,42 @@ async function main(): Promise<void> {
   });
 
   await seller.start();
+  // Answer whatever Priors has asked, on a timer. execFile rather than
+  // spawnSync: a synchronous call here would stall the ACP event loop while it
+  // waits on a chain read.
+  const respond = () => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const script = path.resolve(here, "../../scripts/respond.py");
+    execFile(
+      process.env.PYTHON ?? "python",
+      [script, "--agent", sellerAddress, "--status", "available"],
+      (err, stdout) => {
+        if (err) {
+          log.warn(`respond.py failed: ${String(err).slice(0, 120)}`);
+          return;
+        }
+        try {
+          const out = JSON.parse(stdout) as { answered: number };
+          if (out.answered > 0) {
+            log.info(`declared availability on ${out.answered} request(s)`);
+          }
+        } catch {
+          /* a malformed reply is not worth taking the agent down for */
+        }
+      }
+    );
+  };
+  respond();
+  const responder = setInterval(respond, RESPOND_EVERY_MS);
+  responder.unref();
+
+  if (faultsRemaining > 0) {
+    log.warn(
+      `FAULT INJECTION ARMED: will decline the next ${faultsRemaining} job(s) ` +
+        "after declaring availability"
+    );
+  }
+
   log.info("ready, listening for jobs");
 
   const shutdown = async (signal: NodeJS.Signals) => {
