@@ -606,7 +606,10 @@ class ResolverWriter:
         return ResponseRecord(
             provider=body["provider"],
             declaration_type=declaration_type,
-            declared=int(body.get("declared", 0)),
+            # Derived from the counterparty's own rows, never from a field in
+            # this record - the same source Priors reads, so the observer
+            # cannot report a different history from the one that decides.
+            declared=self._m.count_declarations(provider, declaration_type),
             observations=tuple(
                 Observation(int(o["block"]), bool(o["confirmed"]))
                 for o in body.get("observations") or []
