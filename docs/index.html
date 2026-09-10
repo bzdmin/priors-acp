@@ -622,8 +622,9 @@
     <p>126 right, 61 wrong, and nearly all the same shape: memory overruling a hire the chain record endorsed, on a job that then failed.</p>
 
     <div class="note">
-      <p><strong>The aggregate movement is small,</strong> with accuracy moving from 0.9000 to 0.9035, because chain evidence alone is already strong enough that per-provider completion rates with no memory reach 90%. Most of those 18,360 jobs are easy calls that drown the hard ones in any average.</p>
-      <p>The defensible claim is the reversal count rather than the average, and 187 of 18,360 is 1% of decisions.</p>
+      <p><strong>The aggregate movement is small, and the deleted run is not the chain.</strong> Run D still scans 6.3 million blocks, decodes every ACP event, builds per-provider counters and shrinks them toward the market rate. That is Priors with stages 2 and 3 removed, not a raw chain lookup, and it is why it already reaches 0.9000. Nothing you could read off BaseScan gets near it.</p>
+      <p>Against that, memory adds 0.35 points of accuracy and 7.6% on Brier, which measures whether the confidence was honest rather than only whether the verdict was right. In jobs, it removes 64 wrong calls out of 1,836 remaining, on a problem where hiring everything already scores 79.47%.</p>
+      <p>The reversal count is the claim rather than the average: 187 decisions where memory contradicted the record and was right on 126 of them. And this table covers only the completion question. The 40,161 jobs that draw no response at all are invisible to it, and the gate that handles those is where deletion moves a number from 0.1666 to 0.4669.</p>
     </div>
   </div>
 </section>
