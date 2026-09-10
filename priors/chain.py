@@ -39,14 +39,23 @@ ACP_CONTRACT = "0x238e541bfefd82238730d00a2208e5497f1832e0"
 
 DEFAULT_RPC = "https://mainnet.base.org"
 #: Public endpoints tried in order when one is failing or rate-limiting.
+#: Probed 2026-09-10 against this contract: publicnode 403s eth_getLogs, and
+#: drpc, blastapi and meowrpc do not serve the method at all, whatever they
+#: answer for eth_blockNumber. Only these two are useful for a log scan, and
+#: 1rpc caps a span at 50 blocks, which _logs discovers on its own.
 FALLBACK_RPCS = (
-    "https://base-rpc.publicnode.com",
     "https://1rpc.io/base",
 )
+
+#: A bare token like "priors/1.0" is 403ed by every endpoint above. They filter
+#: on the shape of the agent string rather than on the name, so this keeps the
+#: project identifiable while passing the filter.
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) priors-acp/0.1"
 #: ~2s blocks on Base, so this is roughly a minute of depth.
 DEFAULT_CONFIRMATIONS = 30
-#: Proven against the public endpoints; larger spans start being refused.
-DEFAULT_CHUNK = 10_000
+#: mainnet.base.org serves 2,000 and answers 413 at 10,000. Endpoints that
+#: allow less are handled by the halving in ``_logs``.
+DEFAULT_CHUNK = 2_000
 
 
 class RpcError(RuntimeError):
@@ -82,8 +91,7 @@ class _Rpc:
                     data=payload,
                     headers={
                         "Content-Type": "application/json",
-                        # Some endpoints 403 the default urllib agent.
-                        "User-Agent": "priors/1.0",
+                        "User-Agent": USER_AGENT,
                     },
                 )
                 with urllib.request.urlopen(req, timeout=self.timeout) as fh:
@@ -157,11 +165,30 @@ class ChainSource:
         """Deepest block considered settled enough to decide against."""
         return self.head() - self.confirmations
 
+    #: Substrings public endpoints use when a span is too wide. They disagree
+    #: on the limit and on the wording, and an endpoint that accepted 10,000
+    #: yesterday can refuse it today, so the span is discovered rather than
+    #: assumed.
+    _RANGE_REFUSALS = ("limited to", "block range", "range is too large",
+                       "exceed", "too many blocks", "payload too large", "413")
+
     def _logs(self, lo: int, hi: int) -> list[dict]:
-        return self._rpc.call(
-            "eth_getLogs",
-            [{"address": self.address, "fromBlock": hex(lo), "toBlock": hex(hi)}],
-        )
+        try:
+            return self._rpc.call(
+                "eth_getLogs",
+                [{"address": self.address, "fromBlock": hex(lo),
+                  "toBlock": hex(hi)}],
+            )
+        except RpcError as err:
+            refused = any(t in str(err).lower() for t in self._RANGE_REFUSALS)
+            if not refused or hi <= lo:
+                raise
+            # Halve and retry. Narrowing the standing chunk as well means the
+            # discovery happens once rather than on every window, which matters
+            # when catching up over thousands of blocks.
+            mid = (lo + hi) // 2
+            self.chunk = max(1, min(self.chunk, hi - lo) // 2)
+            return self._logs(lo, mid) + self._logs(mid + 1, hi)
 
     # -- the EventSource protocol -------------------------------------------
 

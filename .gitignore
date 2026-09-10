@@ -39,3 +39,6 @@ npm-debug.log*
 
 # Local only - candid strategy notes and account identifiers
 HANDOFF.md
+
+# coordination re-run state, local only
+.rerun_coordination.json
