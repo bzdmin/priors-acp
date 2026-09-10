@@ -59,9 +59,9 @@ Of the 187 decisions memory changed, 126 were right and 61 were wrong:
 
 | Direction | n | memory right | memory wrong |
 |---|---|---|---|
-| HIRE → DO NOT HIRE | 181 | 122 · 67.4% | 59 |
-| DO NOT HIRE → HIRE | 6 | 4 · 66.7% | 2 |
-| **Total** | **187** | **126 · 67.4%** | **61** |
+| HIRE → DO NOT HIRE | 181 | 122 | 59 |
+| DO NOT HIRE → HIRE | 6 | 4 | 2 |
+| **Total** | **187** | **126** | **61** |
 
 Almost every override runs one way, blocking a provider whose public record
 looked fine. What Priors learned about this marketplace is that the expensive
@@ -95,8 +95,7 @@ Two rows ordered by write time, with the decision existing 214 blocks before
 its own outcome does. Point the same command at a deleted store and every
 section prints `(nothing stored)`.
 
-Job 31495 is an illustrative case rather than a randomly selected sample,
-since it was drawn from the 187 reversals after the outcomes were known. The
+Job 31495 was drawn from the 187 reversals after the outcomes were known. The
 aggregate table above is what carries the claim.
 
 ---
@@ -168,10 +167,9 @@ path, with time always expressed as a block number.
 | later demoted, stopped working and lost their weight | 23 |
 | still on trial | 117 |
 
-Memory that changes rather than memory that accumulates. A rule starts as a
-pattern, becomes provisional at half weight, and graduates only after proving
-itself over 10 applications. Demoted rules are archived rather than deleted,
-so what Priors used to believe stays readable.
+A rule starts as a pattern, becomes provisional at half weight, and graduates
+only after proving itself over 10 applications. Demoted rules are archived
+rather than deleted, so what Priors used to believe stays readable.
 
 ### What Priors refuses to act on
 
@@ -233,15 +231,24 @@ Three properties a source running unattended needs:
 ### Hiring for real
 
 ```bash
-cd buyer && npm install
+cd buyer
+npm install
 npm run hire
 ```
 
+Separate lines on purpose. Windows PowerShell 5.1 rejects `&&` with
+`The token '&&' is not a valid statement separator in this version`, and `cd`
+from anywhere but the repo root gives `Missing script: "hire"`.
+
+**This one needs credentials and will not run for you.** `buyer/.env` holds the
+signer for a funded wallet and is not in this repo, so `npm run hire` is here to
+show what the buyer does, not as something to reproduce. Everything else on this
+page runs without it.
+
 `buyer/src/hire.ts` contains no predictor, shelling out to `scripts/decide.py`,
 which runs the same `predict` the backtest and the live tail call. It will not
-create a job unless that returns HIRE, so the live hire is evidence about the
-model that was evaluated rather than a second implementation of it, and the
-wallet is not constructed until after the decision.
+create a job unless that returns HIRE. The wallet is not constructed until
+after the decision.
 
 `evaluatorAddress` is omitted, which puts the job in skip-evaluation mode, so
 **Priors does not appoint itself evaluator.** Its own scan found the client
@@ -270,9 +277,8 @@ job 76737  same lifecycle, completed at blk 50951815
 ```
 
 Digest was unknown to Priors with 0 prior jobs, so the prediction fell back to
-the 0.7947 market base rate and memory changed nothing. This is the point where
-Priors' memory of Digest begins, rather than a second demonstration of memory
-overriding the record.
+the 0.7947 market base rate and memory changed nothing. This is where Priors'
+memory of Digest begins.
 
 ---
 
@@ -400,9 +406,8 @@ and expensive for whoever is waiting.
 Reliability is **0.1666** against a bar of **0.4669**, evaluated at block
 51,120,396 on 2026-09-10.
 
-That figure will not be what you get, and the difference is the mechanism
-working rather than a stale number. A broken promise halves in weight each day,
-so reliability climbs back toward the prior as the evidence ages:
+That figure will not be what you get. A broken promise halves in weight each
+day, so reliability climbs back toward the prior as the evidence ages:
 
 | Running the command on | p_respond | Gate |
 |---|---|---|
@@ -494,8 +499,16 @@ is not, since it holds a live wallet. What is verifiable:
             78040  78041  78042  78046  78047  78051  78053  78054
   first     76736  76737   the two jobs before any of this, both completed
   ```
-- **Both agents are registered on Virtuals**, Priors as buyer and Digest as
-  provider with the `textDigest` offering.
+- **Both agents are on Base, and every job either has made is public.**
+  Priors as buyer and Digest as provider with the `textDigest` offering:
+
+  | | Address |
+  |---|---|
+  | Priors, the buyer | [`0x58c8b031e963cea14e2440ddbcbb9bdb60c23a80`](https://basescan.org/address/0x58c8b031e963cea14e2440ddbcbb9bdb60c23a80) |
+  | Digest, the provider | [`0x5043147b8b666ac070e01ff659e1fbbbc2462bc7`](https://basescan.org/address/0x5043147b8b666ac070e01ff659e1fbbbc2462bc7) |
+
+  Open the buyer address and you see every job it has created, including the
+  ones it created and never funded, and the days on which it created none.
 - **Every figure here regenerates** from `scripts/dataset_stats.py`,
   `scripts/ablation.py` and `scripts/coordination_report.py`.
 - **The replay regenerates from a clean clone.** The scan is committed at
@@ -530,8 +543,7 @@ Five primitives, each doing work the product depends on.
 | **Search (FTS5)** | Pulling one job's decision and episode out of 36,724 events without a scan, which is what `show_memory.py` prints. |
 | **Cursor paging** | `read_events` clamps any limit to 10,000; `iter_journal()` pages past it on the `until` cursor to read the whole journal. |
 
-HOT and REFERENCE are unused, and the store is a local file the agent owns,
-which is why deleting it is a real experiment rather than a mocked failure.
+HOT and REFERENCE are unused. The store is a local file the agent owns.
 
 Current store: **36,724 journal events**, **439 entities** (271 providers, 156
 rules, 5 declarations, 5 requests, 1 response record, 1 calibration ledger),
@@ -585,7 +597,7 @@ Six surfaces, and what each one actually does here.
 | Surface | How Priors uses it |
 |---|---|
 | **Sibyl WARM entities** | Provider records, the rules currently believed, and the calibration ledger. Read by key rather than by search, so a near match from the wrong provider cannot come back. |
-| **Sibyl COLD journal** | Every decision and every episode, in write order. This is what makes the 214-block gap between a prediction and its own outcome checkable rather than claimed. |
+| **Sibyl COLD journal** | Every decision and every episode, in write order. The 214-block gap between a prediction and its own outcome is visible in it. |
 | **Sibyl ARCHIVE** | Rules that stopped working. Demoted rules are archived rather than deleted, so what Priors used to believe stays readable after it stops acting on it. |
 | **Virtuals ACP** | The job lifecycle through `acp-node-v2`, and the Service Registry for offering and price lookup. Priors hires by offering name, so it never hardcodes a price. |
 | **Virtuals paymaster** | Privy smart wallets with Alchemy account abstraction through Virtuals' proxied gas manager. Gas is sponsored, so the wallet holds USDC for escrow and no ETH. |
@@ -616,8 +628,7 @@ to write its summary prose and falling back to extractive text when
 model.
 
 **The scan ships with the repo.** `data/acp_scan_state_v2.json.gz` is the
-150 MB scan gzipped to 15 MB, so the replay regenerates from a clean clone
-rather than on request. Every script reads it by default and still takes
+150 MB scan gzipped to 15 MB, so the replay regenerates from a clean clone. Every script reads it by default and still takes
 `--dataset /path/to/another`. The derived figures are in
 [`docs/DATA.md`](docs/DATA.md), regenerated by `scripts/dataset_stats.py`.
 
