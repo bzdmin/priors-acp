@@ -755,17 +755,17 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
       <table>
         <thead><tr><th>Claim</th><th>Status</th></tr></thead>
         <tbody>
-          <tr><td>Predictions written before outcomes exist</td><td class="kept">Real, and structurally enforced, since each block runs absorb, predict, absorb and a prediction cannot see its own outcome</td></tr>
-          <tr><td>187 decisions changed by memory across 18,360 jobs</td><td class="kept">Real, and reproducible from a clean clone, since the scan ships with the repo</td></tr>
-          <tr><td>Deletion changes behaviour</td><td class="kept">Real, with no <span class="mono">if memory_enabled</span> branch anywhere</td></tr>
+          <tr><td>Predictions written before outcomes exist</td><td class="kept">Real, and enforced by the code path</td></tr>
+          <tr><td>187 decisions changed by memory across 18,360 jobs</td><td class="kept">Real, and reproducible from a clean clone</td></tr>
+          <tr><td>Deletion changes behaviour</td><td class="kept">Real. There is no memory on or off switch to flip</td></tr>
           <tr><td>21 jobs on Base mainnet</td><td class="kept">Real and permanent, including the one that does not exist</td></tr>
-          <tr><td>Accumulated over months of live trading</td><td class="broken">No, the replay runs in fast forward over already-recorded history</td></tr>
-          <tr><td>An independent provider</td><td class="broken">No, since Digest is operated by the same builder and is both sides of every live job</td></tr>
-          <tr><td>Failures observed in the wild</td><td class="broken">No, every one injected through <span class="mono">DIGEST_FAULT_NEXT</span>, by hand and deterministically</td></tr>
+          <tr><td>Accumulated over months of live trading</td><td class="broken">No, the replay runs in fast forward over past history</td></tr>
+          <tr><td>An independent provider</td><td class="broken">No, because Digest is operated by us</td></tr>
+          <tr><td>Failures observed in the wild</td><td class="broken">No, every failure was injected through <span class="mono">DIGEST_FAULT_NEXT</span>, deliberately and deterministically</td></tr>
           <tr><td>Proof that Priors hires better</td><td class="broken">No, it shows the decision depends on what was remembered, at n = 18 against one provider</td></tr>
-          <tr><td>The collection ran through the gate</td><td class="broken">No, it bypassed the gate, because a gate that stops you transacting also stops you measuring</td></tr>
-          <tr><td>The feature set was discovered by the miner</td><td class="broken">No, the rules are temporally clean but the vocabulary was chosen by someone who had analysed the data</td></tr>
-          <tr><td>A large aggregate improvement</td><td class="broken">No, accuracy moves 0.9000 to 0.9035, and the 187 reversals are the claim rather than the average</td></tr>
+          <tr><td>The collection ran through the gate</td><td class="broken">No, it bypassed the gate</td></tr>
+          <tr><td>The rule miner chose its own fields</td><td class="broken">No, a human picked which fields it was allowed to look at</td></tr>
+          <tr><td>A large aggregate improvement</td><td class="broken">No, accuracy moves 0.9000 to 0.9035 and Brier 0.0721 to 0.0666. The 187 reversals are the claim</td></tr>
         </tbody>
       </table>
     </div>

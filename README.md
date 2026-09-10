@@ -693,20 +693,20 @@ model.
 
 | Claim | Status |
 |---|---|
-| Predictions written before outcomes exist | **Real, and structurally enforced.** Each block runs in three phases, absorb attributes, predict, absorb outcomes, so a prediction cannot see its own outcome. There is no check to forget to run |
-| 187 decisions changed by memory over 18,360 jobs | **Real, and reproducible from a clean clone.** The scan ships with the repo |
-| Deletion changes behaviour | **Real.** No `if memory_enabled` branch exists. Stages 2 and 3 have nothing to recall and the prediction falls back to stage 1 |
-| 21 jobs on Base mainnet | **Real, and permanent.** Including the one that does not exist |
-| Accumulated over months of live trading | **No.** The replay runs in fast forward against a scan of already-recorded history. The live tail is the exception and is labelled wherever it appears |
-| An independent counterparty | **No.** `digest/` is an agent I also operate. Both sides of every live job are mine |
-| Failures observed in the wild | **No.** Every one was injected through `DIGEST_FAULT_NEXT`, by hand and deterministically |
-| The live result measures whether Priors hires better | **No.** It measures whether the decision depends on what was remembered. n = 18, one counterparty, faults on purpose |
-| The collection ran through the gate | **No.** It bypassed it, because a gate that stops you transacting also stops you measuring. See the selective labels section |
-| The feature set was discovered by the miner | **No.** Individual rules are temporally clean, but the condition vocabulary they choose from was written by someone who had already analysed this dataset. That is a separate limitation from outcome leakage |
-| The aggregate improvement is large | **No.** Accuracy moves 0.9000 to 0.9035, and Brier 0.0721 to 0.0666, which is 7.6%. The deleted run is not a chain lookup: it still scans 6,319,153 blocks and shrinks per-provider rates, so it starts at 0.9000. The reversal count is the claim, 187 decisions changed and 126 of them right |
+| Predictions written before outcomes exist | **Real**, and enforced by the code path |
+| 187 decisions changed by memory across 18,360 jobs | **Real**, and reproducible from a clean clone |
+| Deletion changes behaviour | **Real.** There is no memory on or off switch to flip |
+| 21 jobs on Base mainnet | **Real** and permanent, including the one that does not exist |
+| Accumulated over months of live trading | **No**, the replay runs in fast forward over past history |
+| An independent provider | **No**, because Digest is operated by us |
+| Failures observed in the wild | **No**, every failure was injected through `DIGEST_FAULT_NEXT`, deliberately and deterministically |
+| Proof that Priors hires better | **No**, it shows the decision depends on what was remembered, at n = 18 against one provider |
+| The collection ran through the gate | **No**, it bypassed the gate |
+| The rule miner chose its own fields | **No**, a human picked which fields it was allowed to look at |
+| A large aggregate improvement | **No**, accuracy moves 0.9000 to 0.9035 and Brier 0.0721 to 0.0666. The 187 reversals are the claim |
 
 The 18,360-job replay is the part that runs with no hand on it. Everything
-involving Digest is a controlled demonstration and is described as one.
+involving Digest is a controlled demonstration.
 
 ---
 
