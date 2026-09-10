@@ -442,7 +442,7 @@
 
 <section style="border-top: none;">
   <div class="wrap">
-    <div class="label">The deletion test</div>
+    <div class="label" id="test">The deletion test</div>
     <h2>Same code, same provider, same claim, different memory.</h2>
     <p class="sub">A provider declared itself available 24 times while it delivered twice and went silent sixteen times. Priors was asked to hire it twice, with memory and without memory.</p>
 
@@ -624,7 +624,7 @@
     <div class="note">
       <p><strong>Memory removed 64 wrong calls and improved Brier by 7.6%,</strong> which measures whether the confidence was honest and not only whether the verdict was right. On the 187 decisions it changed outright it was right on 126.</p>
       <p>Accuracy moves only 0.9000 to 0.9035, because the run without memory is already strong. That run still scans 6.3 million blocks, decodes every ACP event, builds per-provider counters and shrinks them toward the market rate. It is Priors with stages 2 and 3 removed, not a chain lookup, so nothing you could read off BaseScan comes near it. Against a baseline like that, 1,836 wrong calls remain and memory takes 64 of them.</p>
-      <p>This table is also only half of it. The 40,161 jobs that draw no response are invisible to a completion score, and on that side deletion moves the number from 0.1666 to 0.4669.</p>
+      <p>This table is also only half of it. The <a href="#ask">40,161 jobs that draw no response</a> are invisible to a completion score, and on that side deletion moves the number from <a href="#test">0.1666 to 0.4669</a>, which you can <a href="#try">run yourself</a>.</p>
     </div>
   </div>
 </section>
