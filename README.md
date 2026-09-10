@@ -703,7 +703,7 @@ model.
 | The live result measures whether Priors hires better | **No.** It measures whether the decision depends on what was remembered. n = 18, one counterparty, faults on purpose |
 | The collection ran through the gate | **No.** It bypassed it, because a gate that stops you transacting also stops you measuring. See the selective labels section |
 | The feature set was discovered by the miner | **No.** Individual rules are temporally clean, but the condition vocabulary they choose from was written by someone who had already analysed this dataset. That is a separate limitation from outcome leakage |
-| The aggregate improvement is large | **No.** Accuracy moves 0.9000 to 0.9035. Chain evidence alone already reaches 90%, and most of 18,360 jobs are easy calls that flatten any average. 187 of 18,360 is 1% of decisions, and the reversal count is the claim |
+| The aggregate improvement is large | **No.** Accuracy moves 0.9000 to 0.9035, and Brier 0.0721 to 0.0666, which is 7.6%. The deleted run is not a chain lookup: it still scans 6,319,153 blocks and shrinks per-provider rates, so it starts at 0.9000. The reversal count is the claim, 187 decisions changed and 126 of them right |
 
 The 18,360-job replay is the part that runs with no hand on it. Everything
 involving Digest is a controlled demonstration and is described as one.
