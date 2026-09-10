@@ -388,7 +388,7 @@
     <div class="same">Rules-v2 returned 0.7947 on both runs. Only the memory differed.</div>
 
     <div class="note">
-      <p><strong>Why the bar is not a tuned constant.</strong> The bar is 0.4669, which is the marketplace response rate itself: 35,179 of 75,340 created jobs ever reached a provider response. A counterparty Priors has never met sits exactly on the bar and passes, because an unknown agent is treated as typical rather than suspect. That is why the deleted run passes by construction rather than by a number chosen to make it pass.</p>
+      <p><strong>Why the bar is not a tuned constant.</strong> The bar is 0.4669, the marketplace response rate: 35,179 of 75,340 created jobs ever reached a provider response. A counterparty Priors has never met sits exactly on the bar and passes, because an unknown agent is treated as typical rather than suspect. The deleted run passes by construction, not by a number chosen to make it pass.</p>
     </div>
   </div>
 </section>
@@ -494,7 +494,7 @@
     <p>Reliability moved only as evidence arrived: <span class="mono">0.4669 &rarr; 0.5556 &rarr; 0.4757 &rarr; 0.4160 &rarr; 0.1666</span> across 18 observations. It crossed the bar on the third, not the first, because one broken promise against one kept promise is not yet evidence.</p>
 
     <div class="note">
-      <p><strong>There is no transaction for the refused job, and that is the result.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been.</p>
+      <p><strong>There is no transaction for the refused job.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been.</p>
     </div>
 
     <p class="sub">Total spend across every live job: 0.03 USDC. A job nobody answers is never funded, so sixteen broken promises cost sponsored gas and nothing else. Evidence decays by half a day, so this figure is quoted at block 51,120,396 and climbs back toward the bar as it ages: 0.2170 on Sep 11, 0.2860 on Sep 12, expiring Sep 15.</p>
@@ -519,7 +519,7 @@
   <div class="wrap">
     <div class="label" id="recall">At scale</div>
     <h2>187 decisions changed across 18,360 resolved jobs.</h2>
-    <p class="sub">The live jobs show that the decision depends on memory. This shows what memory is worth over the whole history. Both runs are the same binary, and the deleted run is never handicapped to flatter the other.</p>
+    <p class="sub">The live jobs show that the decision depends on memory. This is what memory is worth over the whole history. Both runs are the same binary, and the deleted run is never handicapped to flatter the other.</p>
 
     <div class="scroll">
       <table>
@@ -629,7 +629,7 @@
       <div class="card">
         <div class="k">Nothing to install</div>
         <h3>Read the chain</h3>
-        <p>Look up jobs 76935, 76936, 76941, 76945, 77933 and 77934 against ACP at <span class="mono">0x238e541b</span> on Base. Sixteen of them carry a <span class="mono">JobCreated</span> and nothing else, which is what a broken availability promise looks like. Nobody can edit it, including this project and Sibyl.</p>
+        <p>Look up jobs 76935, 76936, 76941, 76945, 77933 and 77934 against ACP at <span class="mono">0x238e541b</span> on Base. Sixteen of them carry a <span class="mono">JobCreated</span> and nothing else. Nobody can edit it, including this project and Sibyl.</p>
       </div>
       <div class="card">
         <div class="k">A clone and 30 seconds</div>
@@ -653,7 +653,7 @@ python scripts/fresh_session.py --empty      <span style="color:var(--muted)"># 
 python scripts/ablation.py                   <span style="color:var(--muted)"># the four way A/B/C/D</span></pre>
 
     <div class="note">
-      <p><strong>What you cannot reproduce, and why.</strong> The live coordination figures come from the agent's own Sibyl store, holding 18 observations of one counterparty, so <span class="mono">coordination_report.py</span> has nothing to read on a fresh machine. The jobs are on Base and checkable. The memory of them is local, which is the entire point of a store the agent owns.</p>
+      <p><strong>What you cannot reproduce, and why.</strong> The live coordination figures come from the agent's own Sibyl store, holding 18 observations of one counterparty, so <span class="mono">coordination_report.py</span> has nothing to read on a fresh machine. The jobs are on Base and checkable. The memory of them is local, in a store the agent owns.</p>
       <p>The replay is different: it regenerates from the bundled scan, so every figure in the deletion test above is yours to re-derive rather than take on trust.</p>
     </div>
   </div>
