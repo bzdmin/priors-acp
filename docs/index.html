@@ -364,7 +364,7 @@
   .fail { color: var(--red) !important; }
   .desk-foot { padding: 18px 28px; border-top: 1px solid var(--line); }
 
-  .desk-obs { padding: 18px 28px 22px; border-top: 1px solid var(--line); }
+  .desk-obs { padding: 18px 28px 20px; border-top: 1px solid var(--line); }
   .obs-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
     gap: 8px; margin-top: 14px;
@@ -676,16 +676,17 @@
         </div>
       </div>
 
-      <div class="desk-foot">
-        <span class="label">Where 0.7947 comes from</span>
-        <span class="hint">It is the completion rate of the whole marketplace: 14,597 of 18,367 funded ACP jobs completed. Digest has never been funded before, so the same rule applies on this side too and an unknown provider is scored as exactly typical. Both questions land on the market rate when there is no record, which is why the deleted column reads 0.7947 and 0.4669.</span>
-      </div>
-
       <div class="desk-obs">
         <span class="label">What the left column is remembering <b id="obs-now" class="mono"></b></span>
         <span class="hint">Each one is a job on Base, and the bar is what decay has left of it. Green kept its promise, red broke it.</span>
         <div id="obs" class="obs-grid"></div>
       </div>
+
+      <div class="desk-foot">
+        <span class="label">Where 0.7947 comes from</span>
+        <span class="hint">It is the completion rate of the whole marketplace: 14,597 of 18,367 funded ACP jobs completed. Digest has never been funded before, so the same rule applies on this side too and an unknown provider is scored as exactly typical. Both questions land on the market rate when there is no record, which is why the deleted column reads 0.7947 and 0.4669.</span>
+      </div>
+
     </div>
 
     <div class="prov">
