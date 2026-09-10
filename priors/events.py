@@ -27,6 +27,7 @@ JobRejected, identified by count.
 
 from __future__ import annotations
 
+import gzip
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -211,9 +212,24 @@ class LocalDatasetSource:
 
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
+        if not self.path.exists() and self.path.suffix != ".gz":
+            gz = self.path.with_suffix(self.path.suffix + ".gz")
+            if gz.exists():
+                self.path = gz
+
+    def _open(self):
+        """Read the state file, gzipped or not.
+
+        The scan is ~150 MB of raw logs and gzips to about a tenth of that,
+        which is the difference between a figure anyone can regenerate and one
+        they have to take on trust.
+        """
+        if self.path.suffix == ".gz":
+            return gzip.open(self.path, "rt", encoding="utf-8")
+        return self.path.open(encoding="utf-8")
 
     def iter_events(self) -> Iterator[AcpEvent]:
-        with self.path.open() as fh:
+        with self._open() as fh:
             state = json.load(fh)
         yield from sort_events(
             ev for ev in map(decode_log, state["logs"]) if ev is not None
@@ -221,7 +237,7 @@ class LocalDatasetSource:
 
     def cursor(self) -> int:
         """Block the scanner reached, for handing off to a live source."""
-        with self.path.open() as fh:
+        with self._open() as fh:
             return int(json.load(fh)["state"]["cursor"])
 
 

@@ -22,7 +22,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from priors.events import LocalDatasetSource  # noqa: E402
 
-DEFAULT_DATASET = Path.home() / "OneDrive/Desktop/acp/acp_scan_state_v2.json"
+#: The scan ships with the repo, gzipped, so the figures here regenerate from
+#: a clean clone. The uncompressed copy on the author's machine wins if it is
+#: there, since it loads faster, but nothing depends on it existing.
+def _dataset() -> Path:
+    here = Path(__file__).resolve().parent.parent / "data" / "acp_scan_state_v2.json.gz"
+    local = Path.home() / "OneDrive/Desktop/acp/acp_scan_state_v2.json"
+    return local if local.exists() else here
+
+DEFAULT_DATASET = _dataset()
 MIN_FUNDED_FOR_TABLE = 150
 
 

@@ -32,7 +32,15 @@ from priors.memory import (  # noqa: E402
 from priors.predict import predict  # noqa: E402
 from priors.replay import run_replay  # noqa: E402
 
-DEFAULT_DATASET = Path.home() / "OneDrive/Desktop/acp/acp_scan_state_v2.json"
+#: The scan ships with the repo, gzipped, so the figures here regenerate from
+#: a clean clone. The uncompressed copy on the author's machine wins if it is
+#: there, since it loads faster, but nothing depends on it existing.
+def _dataset() -> Path:
+    here = Path(__file__).resolve().parent.parent / "data" / "acp_scan_state_v2.json.gz"
+    local = Path.home() / "OneDrive/Desktop/acp/acp_scan_state_v2.json"
+    return local if local.exists() else here
+
+DEFAULT_DATASET = _dataset()
 DEFAULT_DB = Path.home() / ".sibyl-memory/priors.db"
 
 

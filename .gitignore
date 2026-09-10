@@ -17,7 +17,9 @@ env/
 *.secret
 
 # Local data
-data/
+data/*
+# the scan itself is committed: it is what makes the replay reproducible
+!data/acp_scan_state_v2.json.gz
 datasets/
 replay-output/
 artifacts/
