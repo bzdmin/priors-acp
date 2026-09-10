@@ -9,8 +9,8 @@ with identical code.
 
 ## The problem
 
-Of 75,340 jobs created on ACP, **40,161 never drew a provider response of any
-kind.** Not rejected, not negotiated, not argued over. Asked and ignored.
+Of 75,340 jobs created on ACP, **40,161 never reached a `BudgetSet` event.**
+Not rejected, not negotiated, not argued over. Asked and ignored.
 
 That is the marketplace an agent has to hire in, and every signal it could use
 to choose is produced by the agents it is choosing between. Completion counts,
