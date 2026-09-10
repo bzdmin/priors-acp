@@ -622,9 +622,9 @@
     <p>126 right, 61 wrong, and nearly all the same shape: memory overruling a hire the chain record endorsed, on a job that then failed.</p>
 
     <div class="note">
-      <p><strong>The aggregate movement is small, and the deleted run is not the chain.</strong> Run D still scans 6.3 million blocks, decodes every ACP event, builds per-provider counters and shrinks them toward the market rate. That is Priors with stages 2 and 3 removed, not a raw chain lookup, and it is why it already reaches 0.9000. Nothing you could read off BaseScan gets near it.</p>
-      <p>Against that, memory adds 0.35 points of accuracy and 7.6% on Brier, which measures whether the confidence was honest rather than only whether the verdict was right. In jobs, it removes 64 wrong calls out of 1,836 remaining, on a problem where hiring everything already scores 79.47%.</p>
-      <p>The reversal count is the claim rather than the average: 187 decisions where memory contradicted the record and was right on 126 of them. And this table covers only the completion question. The 40,161 jobs that draw no response at all are invisible to it, and the gate that handles those is where deletion moves a number from 0.1666 to 0.4669.</p>
+      <p><strong>Memory removed 64 wrong calls and improved Brier by 7.6%,</strong> which measures whether the confidence was honest and not only whether the verdict was right. On the 187 decisions it changed outright it was right on 126.</p>
+      <p>Accuracy moves only 0.9000 to 0.9035, because the run without memory is already strong. That run still scans 6.3 million blocks, decodes every ACP event, builds per-provider counters and shrinks them toward the market rate. It is Priors with stages 2 and 3 removed, not a chain lookup, so nothing you could read off BaseScan comes near it. Against a baseline like that, 1,836 wrong calls remain and memory takes 64 of them.</p>
+      <p>This table is also only half of it. The 40,161 jobs that draw no response are invisible to a completion score, and on that side deletion moves the number from 0.1666 to 0.4669.</p>
     </div>
   </div>
 </section>
@@ -686,7 +686,7 @@
   <div class="wrap">
     <div class="label" id="refuse">What Priors refuses to do</div>
     <h2>Two mechanisms were built, measured and switched off</h2>
-    <p class="sub">Both were wrong on the evidence, so neither is allowed to act, and they are not dead code either because they run as the B and C arms of <span class="mono">scripts/ablation.py</span>, which is what makes a negative result checkable instead of asserted.</p>
+    <p class="sub">Both were wrong on the evidence, so neither is allowed to act, and they are not dead code either because both still run inside <span class="mono">scripts/ablation.py</span>, which measures the predictor with each of them switched on, which is what makes a negative result checkable instead of asserted.</p>
 
     <div class="cards">
       <div class="card">
@@ -738,7 +738,7 @@ python -m unittest discover -s tests -t .    <span style="color:var(--muted)"># 
 
 python scripts/fresh_session.py              <span style="color:var(--muted)"># memory intact</span>
 python scripts/fresh_session.py --empty      <span style="color:var(--muted)"># memory deleted</span>
-python scripts/ablation.py                   <span style="color:var(--muted)"># the four way A/B/C/D</span></pre>
+python scripts/ablation.py                   <span style="color:var(--muted)"># with and without each mechanism</span></pre>
 
     <div class="note">
       <p><strong>All of it reproduces, including the live record.</strong> The 18 observations are exported to <span class="mono">docs/data/coordination.json</span> and <span class="mono">coordination_report.py --from-export</span> replays them, so the number in <a href="#try">the panel above</a> regenerates on any machine.</p>
