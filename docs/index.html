@@ -641,7 +641,7 @@
     <p>126 right, 61 wrong, and nearly all the same shape: memory overruling a hire the chain record endorsed, on a job that then failed.</p>
 
     <div class="note">
-      <p><strong>Memory removed 64 wrong calls and moved Brier from 0.0721 to 0.0666,</strong> which measures whether the confidence was honest and not only whether the verdict was right. On the 187 decisions it changed outright it was right on 126.</p>
+      <p><strong>Memory removed 64 wrong calls and improved Brier by 7.6%, from 0.0721 to 0.0666,</strong> which measures whether the confidence was honest and not only whether the verdict was right. On the 187 decisions it changed outright it was right on 126.</p>
       <p>Accuracy moves only 0.9000 to 0.9035, because the run without memory is already strong. That run still scans 6.3 million blocks, decodes every ACP event, builds per-provider counters and shrinks them toward the market rate. It is Priors with stages 2 and 3 removed, not a chain lookup, so nothing you could read off BaseScan comes near it. Against a baseline like that, 1,836 wrong calls remain out of 18,360 and memory takes 64 of them, on a problem where hiring everything already gets 14,597 of 18,367 right.</p>
       <p>This table is also only half of it. The <a href="#ask">40,161 jobs that draw no response</a> are invisible to a completion score, and on that side deletion moves the number from <a href="#test">0.1666 to 0.4669</a>, which you can <a href="#try">run yourself</a>.</p>
     </div>
@@ -711,7 +711,7 @@
       <div class="card">
         <div class="k">Rejected</div>
         <h3>Calibration as an input</h3>
-        <p>Applying it flipped 458 decisions and got fewer than half of them right, worse than a coin. It is a band-wide average applied to individual jobs, and with the hire bar at 0.5 a correct average nudge pushes fine jobs across the line. Kept as self-knowledge, kept out of the call.</p>
+        <p>Applying it flipped 458 decisions and was right on 45% of them, worse than a coin. It is a band-wide average applied to individual jobs, and with the hire bar at 0.5 a correct average nudge pushes fine jobs across the line. Kept as self-knowledge, kept out of the call.</p>
       </div>
       <div class="card">
         <div class="k">Rejected</div>

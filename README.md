@@ -72,7 +72,7 @@ There is no `if memory_enabled` branch, and deletion is not a mode. Stages 2
 and 3 have nothing to recall, so the prediction falls back to the shrunk
 chain-only baseline of stage 1.
 
-**Memory removed 64 wrong calls and moved Brier from 0.0721 to 0.0666.** Accuracy moves
+**Memory removed 64 wrong calls and improved Brier by 7.6%, from 0.0721 to 0.0666.** Accuracy moves
 only 0.9000 to 0.9035 because the run without memory is already strong: it still
 scans 6,319,153 blocks, decodes every ACP event and shrinks per-provider rates
 toward the market rate. That is Priors with stages 2 and 3 removed, not a chain
@@ -205,8 +205,8 @@ off because the evidence did not support them.
 
 **Calibration correcting the prediction.** Priors runs hot in the 0.30 to 0.40
 band, saying 0.35 where 0.14 actually happens. Letting that correction move
-predictions flipped 458 decisions and got fewer than half of them right, worse
-than a coin, because a band-wide average is not evidence about an individual job.
+predictions flipped 458 decisions and was right on 45% of them, worse than a
+coin, because a band-wide average is not evidence about an individual job.
 
 **A learned hiring threshold.** Priors tested whether its own record justified
 demanding more than 0.5 confidence before committing, and every bar above 0.5
