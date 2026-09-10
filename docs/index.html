@@ -382,8 +382,8 @@
 <section style="border-top: none;">
   <div class="wrap">
     <div class="label">The deletion test</div>
-    <h2>Same code. Same provider. Same claim. Different memory.</h2>
-    <p class="sub">A provider declared itself available 24 times across two sessions. Twice it delivered. Sixteen times it went silent and let the job expire. Priors was then asked to hire it once more, twice over: with its memory intact, and with that memory deleted and nothing else changed.</p>
+    <h2>Same code, same provider, same claim, different memory.</h2>
+    <p class="sub">A provider declared itself available 24 times, delivered twice, and went silent sixteen times. Priors was then asked to hire it once more, twice over, with memory and without.</p>
 
     <div class="split">
       <div class="pane intact">
@@ -404,7 +404,7 @@
     <div class="same">Rules-v2 returned 0.7947 on both runs. Only the memory differed.</div>
 
     <div class="note">
-      <p><strong>Why the bar is not a tuned constant.</strong> The bar is 0.4669, the marketplace response rate: 35,179 of 75,340 created jobs ever reached a provider response. A counterparty Priors has never met sits exactly on the bar and passes, because an unknown agent is treated as typical rather than suspect. The deleted run passes by construction, not by a number chosen to make it pass.</p>
+      <p><strong>The bar is not a tuned constant because it is 0.4669, and 0.4669 is the marketplace itself:</strong> 35,179 of 75,340 created jobs ever drew a provider response. An agent Priors has never met lands exactly on that bar and passes, so the deleted run clears by construction and not by a number picked to let it through.</p>
     </div>
   </div>
 </section>
@@ -412,8 +412,8 @@
 <section class="alt">
   <div class="wrap">
     <div class="label" id="try">Live</div>
-    <h2>Delete the memory. Watch the decision change.</h2>
-    <p class="sub">This is the real record: 18 observations of one counterparty, every one of them a job on Base. The arithmetic below is the response gate from <span class="mono">priors/coordination.py</span>, running in your browser over that record. Turn the memory off, or push the clock forward and watch the evidence decay.</p>
+    <h2>Delete the memory and the decision changes.</h2>
+    <p class="sub">Eighteen observations of one counterparty, every one of them a job on Base.</p>
 
     <p class="instruct">Both columns run the same code, on the same request, against the same counterparty. The only difference is whether the agent can remember the last eighteen times it dealt with them.</p>
 
@@ -474,7 +474,7 @@
 <section>
   <div class="wrap">
     <div class="label">Verify it yourself</div>
-    <h2>Twenty-one jobs, on Base mainnet.</h2>
+    <h2>Twenty-one jobs on Base mainnet</h2>
     <p class="sub">Every failure was injected deliberately and deterministically, so it was made to happen rather than waited for. Each row proves one named claim, and the row that matters most has no transaction at all.</p>
 
     <div class="scroll">
@@ -513,7 +513,7 @@
       <p><strong>There is no transaction for the refused job.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been.</p>
     </div>
 
-    <p class="sub">Total spend across every live job: 0.03 USDC. A job nobody answers is never funded, so sixteen broken promises cost sponsored gas and nothing else. Evidence decays by half a day, so this figure is quoted at block 51,120,396 and climbs back toward the bar as it ages: 0.2170 on Sep 11, 0.2860 on Sep 12, expiring Sep 15.</p>
+    <p class="sub">0.03 USDC across all of it. A job nobody answers is never funded, so sixteen broken promises cost sponsored gas and nothing else.</p>
   </div>
 </section>
 
@@ -524,9 +524,9 @@
       <div class="n">40,161</div>
       <div class="of">of 75,340 ACP jobs never get a provider response at all</div>
     </div>
-    <h2>The marketplace's largest failure is silence, not bad work.</h2>
-    <p>Across every ACP job on Base from block 44,429,969 to 50,749,122, 75,340 jobs were created and only 18,367 were ever funded. Of the 56,973 that died, <strong>40,161 never drew a provider response of any kind</strong>, not rejected, just never answered. The other 16,812 got an answer but never reached funding.</p>
-    <p>Predicting whether a job will complete does nothing about that. So Priors asks the provider whether it can actually take the work, then weighs that answer against its own record of whether the same provider's earlier answers held up.</p>
+    <h2>The marketplace's largest failure is silence, not bad work</h2>
+    <p>Of 75,340 jobs created, 18,367 were funded. Of the 56,973 that died, <strong>40,161 drew no provider response at all</strong>, and 16,812 got an answer but never reached funding.</p>
+    <p>Predicting whether a job completes does nothing about that, so Priors asks first and weighs the answer against its record of the same provider's earlier ones.</p>
     <p class="sub">A provider response here means a <span class="mono">BudgetSet</span> event, the provider-side response step in the ACP SDK. The event carries no setter address, so this is a response rate and is not presented as an acceptance or silence rate.</p>
   </div>
 </section>
@@ -534,8 +534,8 @@
 <section>
   <div class="wrap">
     <div class="label" id="recall">At scale</div>
-    <h2>187 decisions changed across 18,360 resolved jobs.</h2>
-    <p class="sub">The live jobs show that the decision depends on memory. This is what memory is worth over the whole history. Both runs are the same binary, and the deleted run is never handicapped to flatter the other.</p>
+    <h2>187 decisions changed across 18,360 resolved jobs</h2>
+    <p class="sub">Both runs are the same binary, and the deleted run is never handicapped.</p>
 
     <div class="scroll">
       <table>
@@ -549,7 +549,7 @@
       </table>
     </div>
 
-    <p>126 right, 61 wrong. Nearly all of them share one shape: memory overruling a hire that the public chain record endorsed, on a job that then failed.</p>
+    <p>126 right, 61 wrong, and nearly all the same shape: memory overruling a hire the chain record endorsed, on a job that then failed.</p>
 
     <div class="note">
       <p><strong>The aggregate movement is small.</strong> Accuracy moves from 0.9000 to 0.9035. The reason is that chain evidence alone is already strong: per-provider completion rates with no memory at all reach 90%. Most of those 18,360 jobs are easy calls that drown out the hard ones in any average.</p>
@@ -561,7 +561,7 @@
 <section class="alt">
   <div class="wrap">
     <div class="label" id="record">How it works</div>
-    <h2>Three stages, and only one survives deletion.</h2>
+    <h2>Three stages, of which only one survives deletion</h2>
 
 <pre>chain evidence        this provider completed 110 of 168 funded jobs
       |               shrunk toward the 0.7947 market base rate
@@ -613,7 +613,7 @@
 <section>
   <div class="wrap">
     <div class="label" id="refuse">What Priors refuses to do</div>
-    <h2>Two mechanisms were built, measured, and switched off.</h2>
+    <h2>Two mechanisms were built, measured and switched off</h2>
     <p class="sub">Both would have made memory look more load-bearing. Both were wrong on the evidence, so neither is allowed to act. The code for both is still in the repo, defaulted off.</p>
 
     <div class="cards">
@@ -639,7 +639,7 @@
 <section class="alt">
   <div class="wrap">
     <div class="label" id="check">Reproduce it</div>
-    <h2>Three ways, in order of how little you have to take on trust.</h2>
+    <h2>Three ways, in order of how little you have to take on trust</h2>
 
     <div class="cards">
       <div class="card">
@@ -678,7 +678,7 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
 <section>
   <div class="wrap">
     <div class="label" id="real">What is real</div>
-    <h2>And what is not.</h2>
+    <h2>And what is not</h2>
 
     <div class="scroll">
       <table>
