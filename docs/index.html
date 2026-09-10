@@ -302,12 +302,13 @@
   .note p:last-child { margin: 0; }
 
   .instruct { font-size: clamp(16px, 1.7vw, 19px); max-width: 68ch; margin: 26px 0 0; }
-  .desk-head { padding: 26px 28px; border-bottom: 1px solid var(--line); }
+  .desk-head { padding: 20px 28px; border-bottom: 1px solid var(--line); }
   .hint { display: block; font-size: 14px; color: var(--muted); margin-top: 10px; max-width: 76ch; }
   .ctl .label b { color: var(--amber); margin-left: 8px; }
+  .desk-obs .label b { color: var(--amber); margin-left: 8px; letter-spacing: 0; }
   .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
   @media (max-width: 720px) { .vs { grid-template-columns: 1fr; } }
-  .col { background: var(--raise); padding: 26px 28px 30px; }
+  .col { background: var(--raise); padding: 22px 28px 26px; }
   .col.intact  { background: var(--red-bg); }
   .col.deleted { background: var(--green-bg); }
   .col-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -361,21 +362,26 @@
   }
   .pass { color: var(--green) !important; }
   .fail { color: var(--red) !important; }
-  .desk-foot { padding: 22px 28px; border-top: 1px solid var(--line); }
+  .desk-foot { padding: 18px 28px; border-top: 1px solid var(--line); }
 
-  .desk-obs { padding: 24px 28px; border-top: 1px solid var(--line); }
+  .desk-obs { padding: 18px 28px 22px; border-top: 1px solid var(--line); }
   .obs-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-    gap: 7px; margin-top: 14px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+    gap: 8px; margin-top: 14px;
   }
   .obs {
-    font-family: ui-monospace, Consolas, monospace; font-size: 11.5px;
-    border: 1px solid var(--line); padding: 7px 9px; line-height: 1.45;
+    font-family: ui-monospace, Consolas, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
   }
-  .obs b { display: block; font-weight: 700; }
-  .obs.kept   { border-left: 3px solid var(--green); }
-  .obs.broken { border-left: 3px solid var(--red); }
-  .obs.gone   { opacity: .32; }
+  .obs b { display: block; font-weight: 700; color: var(--paper); }
+  .obs .bar {
+    display: block; height: 4px; margin-top: 5px; background: var(--line);
+  }
+  .obs .bar i { display: block; height: 100%; transition: width .12s linear; }
+  .obs.kept   .bar i { background: var(--green); }
+  .obs.broken .bar i { background: var(--red); }
+  .obs.gone { opacity: .3; }
+  .obs.gone .bar i { background: var(--muted); }
 
   .lockup { margin-top: 4px; }
   .lockup-row {
@@ -676,8 +682,8 @@
       </div>
 
       <div class="desk-obs">
-        <span class="label">What the left column is remembering</span>
-        <span class="hint">Each one is a job on Base. Green kept its promise, red broke it. The weight is what decay has left of it.</span>
+        <span class="label">What the left column is remembering <b id="obs-now" class="mono"></b></span>
+        <span class="hint">Each one is a job on Base, and the bar is what decay has left of it. Green kept its promise, red broke it.</span>
         <div id="obs" class="obs-grid"></div>
       </div>
     </div>
@@ -1034,15 +1040,21 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
       ? "the evidence has expired, so this is an unknown provider again"
       : "the record does not clear the bar";
 
+    var echo = document.getElementById("obs-now");
+    if (echo) {
+      echo.textContent = r.toFixed(4) + (pass ? " passes" : " below the bar");
+    }
     grid.innerHTML = "";
     DATA.observations.forEach(function (o) {
       var wt = weight(asOf - o.block);
       var el = document.createElement("div");
       el.className = "obs " + (o.confirmed ? "kept" : "broken") +
                      (wt === 0 ? " gone" : "");
-      el.innerHTML = "<b>job " + o.job + "</b>" +
+      el.innerHTML = "<b>" + o.job + "</b>" +
                      (o.confirmed ? "kept" : "broken") +
-                     "<br>weight " + wt.toFixed(3);
+                     '<span class="bar"><i style="width:' +
+                     (wt * 100).toFixed(1) + '%"></i></span>';
+      el.title = "job " + o.job + ", weight " + wt.toFixed(3);
       grid.appendChild(el);
     });
   }
