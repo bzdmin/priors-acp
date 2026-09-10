@@ -779,7 +779,7 @@ Six surfaces, and what each one actually does here.
 | **Sibyl COLD journal** | Every decision and every episode, in write order. The 214-block gap between a prediction and its own outcome is visible in it. |
 | **Sibyl ARCHIVE** | Rules that stopped working. Demoted rules are archived rather than deleted, so what Priors used to believe stays readable after it stops acting on it. |
 | **Virtuals ACP** | The job lifecycle through `acp-node-v2`, and the Service Registry for offering and price lookup. Priors hires by offering name, so it never hardcodes a price. |
-| **Virtuals paymaster** | Privy smart wallets with Alchemy account abstraction through Virtuals' proxied gas manager. Gas is sponsored, so the wallet holds USDC for escrow and no ETH. |
+| **Virtuals paymaster** | Gas is sponsored through Virtuals' gas manager, so the wallet holds USDC for escrow and no ETH. The smart wallet is created by `acp-node-v2` rather than configured here. |
 | **Base mainnet** | Chain 8453. The ACP contract is read directly by `eth_getLogs` for both the 6,319,153-block scan and the live tail, with no web3 dependency. USDC for escrow and payout. |
 
 Two registered agents on Virtuals, Priors as buyer and Digest as provider with
