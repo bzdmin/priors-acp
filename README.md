@@ -72,15 +72,15 @@ There is no `if memory_enabled` branch, and deletion is not a mode. Stages 2
 and 3 have nothing to recall, so the prediction falls back to the shrunk
 chain-only baseline of stage 1.
 
-**Memory removed 64 wrong calls and improved Brier by 7.6%.** Accuracy moves
+**Memory removed 64 wrong calls and moved Brier from 0.0721 to 0.0666.** Accuracy moves
 only 0.9000 to 0.9035 because the run without memory is already strong: it still
 scans 6,319,153 blocks, decodes every ACP event and shrinks per-provider rates
 toward the market rate. That is Priors with stages 2 and 3 removed, not a chain
 lookup. Against a baseline like that, 1,836 wrong calls remain out of 18,360 and
-memory takes 64 of them, on a problem where hiring everything already scores
-79.47%.
+memory takes 64 of them, on a problem where hiring everything already gets
+14,597 of 18,367 right.
 
-Of the 187 decisions memory changed, 126 were right and 61 were wrong, which is 67.4%:
+Of the 187 decisions memory changed, 126 were right and 61 were wrong:
 
 | Direction | n | memory right | memory wrong |
 |---|---|---|---|
@@ -139,10 +139,10 @@ own work. Of 7,356 evaluator fee payments, 7,338 went back to the client.
 This does not show the work is bad or that anyone is cheating, only that a
 mechanism built for independent verification is not being used independently.
 
-**Most jobs die before they start.** Only 24.38% of created jobs are ever
-funded, and the two busiest clients account for 55,004 of the 75,340.
+**Most jobs die before they start.** Only 18,367 of 75,340 created jobs are
+ever funded, and the two busiest clients account for 55,004 of the 75,340.
 
-**The average hides everything.** Once funded, 79.47% complete, but among
+**The average hides everything.** Once funded, 14,597 of 18,367 complete, but among
 providers with 150+ funded jobs, completion runs from 1.00 down to 0.05.
 
 Taken together: the public record is not evidence of the thing an agent
@@ -205,11 +205,11 @@ off because the evidence did not support them.
 
 **Calibration correcting the prediction.** Priors runs hot in the 0.30 to 0.40
 band, saying 0.35 where 0.14 actually happens. Letting that correction move
-predictions flipped 458 decisions and was right on 45% of them, worse than
-chance, because a band-wide average is not evidence about an individual job.
+predictions flipped 458 decisions and got fewer than half of them right, worse
+than a coin, because a band-wide average is not evidence about an individual job.
 
 **A learned hiring threshold.** Priors tested whether its own record justified
-demanding more than 50% confidence before committing, and every bar above 0.5
+demanding more than 0.5 confidence before committing, and every bar above 0.5
 scored worse, since failed ACP jobs are refunded from escrow and caution costs
 more than it saves. This holds under the symmetric accuracy objective tested,
 and under a different cost model the answer could differ.
@@ -324,7 +324,7 @@ the marketplace's largest failure untouched.
 | of those, never drew a response at all | **40,161** |
 | of those, answered but never funded | 16,812 |
 
-**53.31% of created jobs never reach a provider response at all.**
+**40,161 of 75,340 created jobs never reach a provider response at all.**
 
 `BudgetSet` is the first move a provider makes on a job, before any money is
 escrowed. The event records the job but not who set the budget, so these are
@@ -524,7 +524,7 @@ history.
 
 | What broke | Why | What it changed |
 |---|---|---|
-| **Nothing expires an unanswered job** | `JobExpired` needs someone to send a transaction and nobody does. Only 3,112 of the 40,161 jobs that never reached `BudgetSet` emitted one, about 8% | The observer waited forever for a funeral that never happens, so a broken promise could never be recorded. It reads `expired_at` against block time now, which needs no one's cooperation |
+| **Nothing expires an unanswered job** | `JobExpired` needs someone to send a transaction and nobody does. Only 3,112 of the 40,161 jobs that never reached `BudgetSet` emitted one | The observer waited forever for a funeral that never happens, so a broken promise could never be recorded. It reads `expired_at` against block time now, which needs no one's cooperation |
 | **The gate blocked its own evidence** | After one kept and two broken promises reliability sits below the bar, so no further job can be created, and only a job produces an observation | The collection harness bypasses the gate, and the limitation is written up above as the selective labels problem instead of hidden |
 | **Killing an agent leaves orphans** | `npm start` spawns a `tsx` child that survives the wrapper | Four Digest instances accumulated, and two of them accepting one job produced a double `BudgetSet` on job 76935. The harness kills the process tree |
 | **A duplicate job on a restart** | The SDK rebuilds sessions for in-flight jobs, so creating another piles a second on top | A guard that resumes instead of creating. This is the bug that guard exists for |
