@@ -1,0 +1,107 @@
+{
+ "generated_at_block": 51122931,
+ "generated_at_unix": 1789035209,
+ "provider": "0x5043147b8b666ac070e01ff659e1fbbbc2462bc7",
+ "declared": 24,
+ "constants": {
+  "prior": 0.4669,
+  "k": 5.0,
+  "half_life_blocks": 43200,
+  "expiry_blocks": 216000,
+  "blocks_per_day": 43200,
+  "p_complete": 0.7947,
+  "hire_threshold": 0.5
+ },
+ "observations": [
+  {
+   "block": 50965297,
+   "confirmed": true,
+   "job": 76935
+  },
+  {
+   "block": 50965839,
+   "confirmed": false,
+   "job": 76936
+  },
+  {
+   "block": 50966417,
+   "confirmed": false,
+   "job": 76941
+  },
+  {
+   "block": 51105383,
+   "confirmed": true,
+   "job": 77933
+  },
+  {
+   "block": 51105589,
+   "confirmed": false,
+   "job": 77934
+  },
+  {
+   "block": 51105944,
+   "confirmed": false,
+   "job": 77939
+  },
+  {
+   "block": 51106129,
+   "confirmed": false,
+   "job": 77940
+  },
+  {
+   "block": 51118220,
+   "confirmed": false,
+   "job": 77942
+  },
+  {
+   "block": 51118478,
+   "confirmed": false,
+   "job": 78034
+  },
+  {
+   "block": 51118768,
+   "confirmed": false,
+   "job": 78035
+  },
+  {
+   "block": 51118959,
+   "confirmed": false,
+   "job": 78040
+  },
+  {
+   "block": 51119150,
+   "confirmed": false,
+   "job": 78041
+  },
+  {
+   "block": 51119375,
+   "confirmed": false,
+   "job": 78042
+  },
+  {
+   "block": 51119589,
+   "confirmed": false,
+   "job": 78046
+  },
+  {
+   "block": 51119782,
+   "confirmed": false,
+   "job": 78047
+  },
+  {
+   "block": 51119969,
+   "confirmed": false,
+   "job": 78051
+  },
+  {
+   "block": 51120163,
+   "confirmed": false,
+   "job": 78053
+  },
+  {
+   "block": 51120360,
+   "confirmed": false,
+   "job": 78054
+  }
+ ]
+}

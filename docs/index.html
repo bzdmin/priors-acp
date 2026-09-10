@@ -191,6 +191,52 @@
   .note p { margin: 0 0 10px; }
   .note p:last-child { margin: 0; }
 
+  .desk {
+    border: 1px solid var(--line); background: var(--raise); margin: 30px 0 0;
+  }
+  .desk-controls {
+    display: flex; gap: 34px; flex-wrap: wrap; align-items: flex-end;
+    padding: 24px 28px; border-bottom: 1px solid var(--line);
+  }
+  .ctl { display: flex; flex-direction: column; gap: 10px; }
+  .ctl.grow { flex: 1 1 260px; }
+  .toggle { display: flex; border: 1px solid var(--line); width: max-content; }
+  .toggle button {
+    font-family: ui-monospace, Consolas, monospace; font-size: 13px;
+    letter-spacing: 0.14em; padding: 9px 18px; border: 0; cursor: pointer;
+    background: transparent; color: var(--muted);
+  }
+  .toggle button.on { background: var(--amber); color: var(--ink); font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: var(--amber); }
+  .desk-out {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px; background: var(--line);
+  }
+  @media (max-width: 720px) { .desk-out { grid-template-columns: 1fr; } }
+  .out-cell { background: var(--raise); padding: 24px 28px; display: flex;
+              flex-direction: column; gap: 9px; }
+  .out-cell .figure { font-size: clamp(30px, 4vw, 42px); color: var(--paper); }
+  .out-cell .gate { font-size: 13px; color: var(--muted); letter-spacing: 0.06em; }
+  .verdict-cell .verdict {
+    font-family: ui-monospace, Consolas, monospace; font-weight: 800;
+    font-size: clamp(17px, 2.2vw, 23px);
+  }
+  .pass { color: var(--green) !important; }
+  .fail { color: var(--red) !important; }
+  .desk-obs { padding: 24px 28px; border-top: 1px solid var(--line); }
+  .obs-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 7px; margin-top: 14px;
+  }
+  .obs {
+    font-family: ui-monospace, Consolas, monospace; font-size: 11.5px;
+    border: 1px solid var(--line); padding: 7px 9px; line-height: 1.45;
+  }
+  .obs b { display: block; font-weight: 700; }
+  .obs.kept   { border-left: 3px solid var(--green); }
+  .obs.broken { border-left: 3px solid var(--red); }
+  .obs.gone   { opacity: .32; }
+
   footer { padding: 62px 0 84px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
 </style>
 </head>
@@ -250,6 +296,59 @@
 
     <div class="note">
       <p><strong>Why the bar is not a tuned constant.</strong> The bar is 0.4669, which is the marketplace response rate itself: 35,179 of 75,340 created jobs ever reached a provider response. A counterparty Priors has never met sits exactly on the bar and passes, because an unknown agent is treated as typical rather than suspect. That is why the deleted run passes by construction rather than by a number chosen to make it pass.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label" id="try">Run it yourself</div>
+    <h2>Delete the memory and watch the decision change.</h2>
+    <p class="sub">This is the real record: 18 observations of one counterparty, every one of them a job on Base. The arithmetic below is the response gate from <span class="mono">priors/coordination.py</span>, running in your browser over that record. Turn the memory off, or push the clock forward and watch the evidence decay.</p>
+
+    <div class="desk">
+      <div class="desk-controls">
+        <div class="ctl">
+          <span class="label">Memory</span>
+          <div class="toggle" role="group" aria-label="Memory state">
+            <button type="button" id="mem-on"  class="on"  aria-pressed="true">INTACT</button>
+            <button type="button" id="mem-off" aria-pressed="false">DELETED</button>
+          </div>
+        </div>
+        <div class="ctl grow">
+          <span class="label">Clock <span id="day-label" class="mono"></span></span>
+          <input type="range" id="days" min="0" max="6" step="0.25" value="0"
+                 aria-label="Days from now">
+        </div>
+      </div>
+
+      <div class="desk-out">
+        <div class="out-cell">
+          <span class="label">Will it complete</span>
+          <div class="figure" id="p-complete">0.7947</div>
+          <div class="mono gate" id="g-complete">PASS, bar 0.5000</div>
+        </div>
+        <div class="out-cell">
+          <span class="label">Will it respond</span>
+          <div class="figure" id="p-respond">0.1666</div>
+          <div class="mono gate" id="g-respond">FAIL, bar 0.4669</div>
+        </div>
+        <div class="out-cell verdict-cell">
+          <span class="label">Action</span>
+          <div class="verdict" id="verdict">NO JOB CREATED</div>
+          <div class="mono gate" id="why">blocked by coordination</div>
+        </div>
+      </div>
+
+      <div class="desk-obs">
+        <span class="label">The record, and what decay leaves of it</span>
+        <div id="obs" class="obs-grid"></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>Nothing here is a mock, and nothing here is live either.</strong> The 18 observations are a snapshot of what the agent's Sibyl store held at block 51,122,931, exported to <span class="mono">docs/data/coordination.json</span>. The formula is reimplemented in JavaScript so it runs without a server. Deleting memory here means computing with no record, which is exactly what the agent does when the store is empty.</p>
+      <p>To run the real thing against the real store, clone the repo and use the commands below.</p>
     </div>
   </div>
 </section>
@@ -544,5 +643,105 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
   }, { threshold: 0.4 }).observe(n);
 })();
 </script>
+
+<script>
+/* The response gate, reimplemented from priors/coordination.py so it runs with
+   no server. The record below is a snapshot of the agent's Sibyl store, and the
+   arithmetic is the same three lines: decay each observation, shrink toward the
+   marketplace prior, compare against that same prior.
+
+   The one subtlety worth preserving: with no evidence at all the Python returns
+   the prior constant itself, not a computed value that merely rounds to it, so
+   an unknown counterparty sits exactly on the bar and passes. Computing it
+   would land on 0.46690000000000004 and fail a >= comparison. */
+(function () {
+  var DATA = {"generated_at_block":51122931,"generated_at_unix":1789035209,"provider":"0x5043147b8b666ac070e01ff659e1fbbbc2462bc7","declared":24,"constants":{"prior":0.4669,"k":5.0,"half_life_blocks":43200,"expiry_blocks":216000,"blocks_per_day":43200,"p_complete":0.7947,"hire_threshold":0.5},"observations":[{"block":50965297,"confirmed":true,"job":76935},{"block":50965839,"confirmed":false,"job":76936},{"block":50966417,"confirmed":false,"job":76941},{"block":51105383,"confirmed":true,"job":77933},{"block":51105589,"confirmed":false,"job":77934},{"block":51105944,"confirmed":false,"job":77939},{"block":51106129,"confirmed":false,"job":77940},{"block":51118220,"confirmed":false,"job":77942},{"block":51118478,"confirmed":false,"job":78034},{"block":51118768,"confirmed":false,"job":78035},{"block":51118959,"confirmed":false,"job":78040},{"block":51119150,"confirmed":false,"job":78041},{"block":51119375,"confirmed":false,"job":78042},{"block":51119589,"confirmed":false,"job":78046},{"block":51119782,"confirmed":false,"job":78047},{"block":51119969,"confirmed":false,"job":78051},{"block":51120163,"confirmed":false,"job":78053},{"block":51120360,"confirmed":false,"job":78054}]};
+  var C = DATA.constants;
+  var out = document.getElementById("obs");
+  if (!out) return;
+
+  var memory = true, days = 0;
+
+  function weight(ageBlocks) {
+    if (ageBlocks >= C.expiry_blocks) return 0;
+    if (ageBlocks <= 0) return 1;
+    return Math.pow(0.5, ageBlocks / C.half_life_blocks);
+  }
+
+  function reliability(asOf) {
+    if (!memory) return C.prior;                 // nothing recalled
+    var acted = 0, conf = 0;
+    DATA.observations.forEach(function (o) {
+      var w = weight(asOf - o.block);
+      acted += w;
+      if (o.confirmed) conf += w;
+    });
+    if (acted === 0) return C.prior;             // the constant, not a computation
+    return (conf + C.k * C.prior) / (acted + C.k);
+  }
+
+  function fmt(x) { return x.toFixed(4); }
+
+  function render() {
+    var asOf = DATA.generated_at_block + Math.round(days * C.blocks_per_day);
+    var r = reliability(asOf);
+    var respondOk = r >= C.prior;
+    var completeOk = C.p_complete >= C.hire_threshold;
+    var proceed = respondOk && completeOk;
+
+    document.getElementById("day-label").textContent =
+      days === 0 ? "now" : "+" + days.toFixed(2).replace(/\.?0+$/, "") + " days";
+
+    document.getElementById("p-complete").textContent = fmt(C.p_complete);
+    var gc = document.getElementById("g-complete");
+    gc.textContent = (completeOk ? "PASS" : "FAIL") + ", bar " + fmt(C.hire_threshold);
+    gc.className = "mono gate " + (completeOk ? "pass" : "fail");
+
+    var pr = document.getElementById("p-respond");
+    pr.textContent = fmt(r);
+    pr.className = "figure " + (respondOk ? "pass" : "fail");
+    var gr = document.getElementById("g-respond");
+    gr.textContent = (respondOk ? "PASS" : "FAIL") + ", bar " + fmt(C.prior);
+    gr.className = "mono gate " + (respondOk ? "pass" : "fail");
+
+    var v = document.getElementById("verdict");
+    v.textContent = proceed ? "JOB CREATED" : "NO JOB CREATED";
+    v.className = "verdict " + (proceed ? "pass" : "fail");
+    document.getElementById("why").textContent = !memory
+      ? "no record, an unknown counterparty is treated as typical"
+      : proceed ? "the record no longer clears the bar downward"
+                : "blocked by coordination";
+
+    out.innerHTML = "";
+    DATA.observations.forEach(function (o) {
+      var w = memory ? weight(asOf - o.block) : 0;
+      var el = document.createElement("div");
+      el.className = "obs " + (o.confirmed ? "kept" : "broken") +
+                     (w === 0 ? " gone" : "");
+      el.innerHTML = "<b>job " + o.job + "</b>" +
+                     (o.confirmed ? "kept" : "broken") +
+                     "<br>weight " + w.toFixed(3);
+      out.appendChild(el);
+    });
+  }
+
+  function setMemory(on) {
+    memory = on;
+    var a = document.getElementById("mem-on"), b = document.getElementById("mem-off");
+    a.className = on ? "on" : ""; b.className = on ? "" : "on";
+    a.setAttribute("aria-pressed", String(on));
+    b.setAttribute("aria-pressed", String(!on));
+    render();
+  }
+
+  document.getElementById("mem-on").onclick  = function () { setMemory(true); };
+  document.getElementById("mem-off").onclick = function () { setMemory(false); };
+  document.getElementById("days").oninput = function () {
+    days = parseFloat(this.value); render();
+  };
+  render();
+})();
+</script>
+
 </body>
 </html>
