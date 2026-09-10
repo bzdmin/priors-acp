@@ -91,7 +91,10 @@ def phase1_learn(dataset: Path, db: Path) -> dict:
         )
         by_provider[provider] = {"n": seen.observed, "completed": seen.completed}
 
-    journal = len(memory.client.read_events(limit=100_000))
+    # read_events clamps any limit to 10,000 and returns the most recent page,
+    # so counting with it under-reports the journal. iter_journal pages past the
+    # clamp on the until cursor, which is the whole reason it exists.
+    journal = sum(1 for _ in memory.iter_journal())
     return {
         "journal": journal,
         "rules": len(engine.rules),
