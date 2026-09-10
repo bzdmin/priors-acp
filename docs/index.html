@@ -252,6 +252,11 @@
     width: 3px; height: 3px; background: var(--muted); border-radius: 50%;
   }
 
+  .formula {
+    font-size: 15px; color: var(--amber); margin: 4px 0 14px;
+    letter-spacing: 0.01em;
+  }
+
   .note { border-left: 3px solid var(--amber); padding: 3px 0 3px 20px; margin: 28px 0; }
   .note p { margin: 0 0 10px; }
   .note p:last-child { margin: 0; }
@@ -316,6 +321,8 @@
   }
   .pass { color: var(--green) !important; }
   .fail { color: var(--red) !important; }
+  .desk-foot { padding: 22px 28px; border-top: 1px solid var(--line); }
+
   .desk-obs { padding: 24px 28px; border-top: 1px solid var(--line); }
   .obs-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
@@ -391,7 +398,7 @@
         <span class="wordmark">PRIOR<span class="sibyl-s" title="Built on Sibyl Memory">S</span></span>
       </a>
       <nav class="verbs" aria-label="What Priors does">
-        <a href="#ask" title="asks the counterparty before creating a job">ASK</a>
+        <a href="#ask" title="asks the provider before creating a job">ASK</a>
         <a href="#record" title="writes the prediction down before the outcome exists">RECORD</a>
         <a href="#recall" title="187 decisions changed by what it recalled">RECALL</a>
         <a href="#refuse" title="two mechanisms built, measured and switched off">REFUSE</a>
@@ -444,7 +451,7 @@
     <div class="same">Both runs scored 0.7947 on whether the job would complete, so the predictor never changed its mind. Only the memory differed.</div>
 
     <div class="note">
-      <p><strong>The bar is not a tuned constant because it is 0.4669, and 0.4669 is the marketplace itself:</strong> 35,179 of 75,340 created jobs ever drew a provider response. An agent Priors has never met lands exactly on that bar and passes, so the deleted run clears by construction and not by a number picked to let it through.</p>
+      <p><strong>The bar is not a tuned constant because it is 0.4669, and 0.4669 is the marketplace itself.</strong> Only 35,179 of 75,340 created jobs ever drew a provider response, which gave us 0.4669.</p><p>A provider's reliability is that same rate, pulled toward whatever its own record shows:</p><p class="mono formula">reliability = (kept + 5 &times; 0.4669) &divide; (observed + 5)</p><p>The 5 is a handicap, so it takes five real observations before a record outweighs the marketplace rate and one broken promise is never a verdict. For a provider Priors has never met there is nothing to weigh:</p><p class="mono formula">(0 + 5 &times; 0.4669) &divide; (0 + 5) = 2.3345 &divide; 5 = 0.4669</p><p>Exactly the bar. A stranger passes, and the deleted run clears by construction and not by a number picked to let it through.</p>
     </div>
   </div>
 </section>
@@ -453,9 +460,9 @@
   <div class="wrap">
     <div class="label" id="try">Live</div>
     <h2>Delete the memory and the decision changes.</h2>
-    <p class="sub">Eighteen observations of one counterparty, every one of them a job on Base.</p>
+    <p class="sub">Eighteen observations of one provider, every one of them a job on Base.</p>
 
-    <p class="instruct">Both columns run the same code, on the same request, against the same counterparty. The only difference is whether the agent can remember the last eighteen times it dealt with them.</p>
+    <p class="instruct">Both columns run the same code, on the same request, against the same provider. The only difference is whether the agent can remember the last eighteen times it dealt with them.</p>
 
     <div class="desk">
       <div class="desk-head">
@@ -463,7 +470,7 @@
           <span class="label">Evidence age <b id="day-label" class="mono">today</b></span>
           <input type="range" id="days" min="0" max="6" step="0.25" value="0"
                  aria-label="How old the evidence is, in days">
-          <span class="hint">Drag right. A broken promise halves in weight each day, so the left column climbs until the evidence expires on day five and the two columns agree.</span>
+          <span class="hint">Drag right. A broken promise halves in weight each day and is dropped entirely after five, because the gate stops Priors creating jobs for a provider it has blocked, and only a job can produce the observation that would clear it. Without expiry a provider blocked once could never recover, so the left column climbs until day five and the two columns agree.</span>
         </div>
       </div>
 
@@ -474,7 +481,7 @@
             <b>Memory intact</b>
             <span class="col-sub">18 observations recalled</span>
           </div>
-          <div class="row"><span>Will it complete</span><b class="mono" id="c-a">0.7947</b></div>
+          <div class="row"><span>Will it complete</span><b class="mono" id="c-a" title="14,597 of 18,367 funded ACP jobs completed">0.7947</b></div>
           <div class="row"><span>Will it respond</span><b class="mono big" id="r-a">0.1698</b></div>
           <div class="row"><span>Bar to clear</span><b class="mono">0.4669</b></div>
           <div class="col-verdict" id="v-a">NO JOB CREATED</div>
@@ -491,8 +498,13 @@
           <div class="row"><span>Will it respond</span><b class="mono big" id="r-b">0.4669</b></div>
           <div class="row"><span>Bar to clear</span><b class="mono">0.4669</b></div>
           <div class="col-verdict pass">JOB CREATED</div>
-          <div class="col-why">an unknown counterparty is treated as typical, so it passes</div>
+          <div class="col-why">an unknown provider is treated as typical, so it passes</div>
         </div>
+      </div>
+
+      <div class="desk-foot">
+        <span class="label">Where 0.7947 comes from</span>
+        <span class="hint">It is the completion rate of the whole marketplace: 14,597 of 18,367 funded ACP jobs completed. Digest has never been funded before, so the same rule applies on this side too and an unknown provider is scored as exactly typical. Both questions land on the market rate when there is no record, which is why the deleted column reads 0.7947 and 0.4669.</span>
       </div>
 
       <div class="desk-obs">
@@ -524,7 +536,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>A counterparty can declare availability and keep it</td>
+            <td>A provider can declare availability and keep it</td>
             <td class="kept">jobs 76935, 76945, 77933 responded, funded, completed</td>
           </tr>
           <tr>
@@ -728,9 +740,9 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
           <tr><td>Deletion changes behaviour</td><td class="kept">Real, with no <span class="mono">if memory_enabled</span> branch anywhere</td></tr>
           <tr><td>21 jobs on Base mainnet</td><td class="kept">Real and permanent, including the one that does not exist</td></tr>
           <tr><td>Accumulated over months of live trading</td><td class="broken">No, the replay runs in fast forward over already-recorded history</td></tr>
-          <tr><td>An independent counterparty</td><td class="broken">No, since Digest is operated by the same builder and is both sides of every live job</td></tr>
+          <tr><td>An independent provider</td><td class="broken">No, since Digest is operated by the same builder and is both sides of every live job</td></tr>
           <tr><td>Failures observed in the wild</td><td class="broken">No, every one injected through <span class="mono">DIGEST_FAULT_NEXT</span>, by hand and deterministically</td></tr>
-          <tr><td>Proof that Priors hires better</td><td class="broken">No, it shows the decision depends on what was remembered, at n = 18 against one counterparty</td></tr>
+          <tr><td>Proof that Priors hires better</td><td class="broken">No, it shows the decision depends on what was remembered, at n = 18 against one provider</td></tr>
           <tr><td>The collection ran through the gate</td><td class="broken">No, it bypassed the gate, because a gate that stops you transacting also stops you measuring</td></tr>
           <tr><td>The feature set was discovered by the miner</td><td class="broken">No, the rules are temporally clean but the vocabulary was chosen by someone who had analysed the data</td></tr>
           <tr><td>A large aggregate improvement</td><td class="broken">No, accuracy moves 0.9000 to 0.9035, and the 187 reversals are the claim rather than the average</td></tr>
@@ -843,11 +855,11 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
    no server. Both columns are computed every frame: the left recalls the real
    record, the right recalls nothing. The right one never moves, and that is the
    point rather than a bug: with no evidence there is nothing for decay to act
-   on, so an unknown counterparty sits on the marketplace prior forever.
+   on, so an unknown provider sits on the marketplace prior forever.
 
    The empty case returns the prior constant itself, not a computed value that
    rounds to it. Computing lands on 0.46690000000000004 and fails a >= against
-   0.4669, which would shut the gate on a counterparty nobody has ever met. */
+   0.4669, which would shut the gate on a provider nobody has ever met. */
 (function () {
   var DATA = {"generated_at_block":51122931,"generated_at_unix":1789035209,"provider":"0x5043147b8b666ac070e01ff659e1fbbbc2462bc7","declared":24,"constants":{"prior":0.4669,"k":5.0,"half_life_blocks":43200,"expiry_blocks":216000,"blocks_per_day":43200,"p_complete":0.7947,"hire_threshold":0.5},"observations":[{"block":50965297,"confirmed":true,"job":76935},{"block":50965839,"confirmed":false,"job":76936},{"block":50966417,"confirmed":false,"job":76941},{"block":51105383,"confirmed":true,"job":77933},{"block":51105589,"confirmed":false,"job":77934},{"block":51105944,"confirmed":false,"job":77939},{"block":51106129,"confirmed":false,"job":77940},{"block":51118220,"confirmed":false,"job":77942},{"block":51118478,"confirmed":false,"job":78034},{"block":51118768,"confirmed":false,"job":78035},{"block":51118959,"confirmed":false,"job":78040},{"block":51119150,"confirmed":false,"job":78041},{"block":51119375,"confirmed":false,"job":78042},{"block":51119589,"confirmed":false,"job":78046},{"block":51119782,"confirmed":false,"job":78047},{"block":51119969,"confirmed":false,"job":78051},{"block":51120163,"confirmed":false,"job":78053},{"block":51120360,"confirmed":false,"job":78054}]};
   var C = DATA.constants;
@@ -891,7 +903,7 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
     v.textContent = pass ? "JOB CREATED" : "NO JOB CREATED";
     v.className = "col-verdict" + (pass ? " pass" : "");
     w.textContent = pass
-      ? "the evidence has expired, so this is an unknown counterparty again"
+      ? "the evidence has expired, so this is an unknown provider again"
       : "the record does not clear the bar";
 
     grid.innerHTML = "";
