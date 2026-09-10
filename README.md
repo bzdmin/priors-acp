@@ -105,14 +105,14 @@ python scripts/show_memory.py \
 
 ```
 FILE   ~/.sibyl-memory/priors.db
-       80,453,632 bytes on disk, tier stake, uncapped
+       80,343,040 bytes on disk, tier stake, uncapped
 READ   provider 0xa9667116b4f4e9f1bae85f93a21b4b8ea45de98f, job 31495
 
 -- search(job), write order --------------------------------------
-  2026-09-03T01:08:05.906Z  DECISION  job 31495
+  2026-09-10T16:36:03.575Z  DECISION  job 31495
     written at block 46704908, before any outcome existed
     chain-only 0.7334 -> 0.2713 after rules [R-81]
-  2026-09-03T01:08:05.961Z  EPISODE   job 31495
+  2026-09-10T16:36:03.706Z  EPISODE   job 31495
     written at block 46705122, by the resolver, after the fact
     outcome failure (Refunded), prediction was right
 ```
@@ -120,6 +120,12 @@ READ   provider 0xa9667116b4f4e9f1bae85f93a21b4b8ea45de98f, job 31495
 Two rows ordered by write time, with the decision existing 214 blocks before
 its own outcome does. Point the same command at a deleted store and every
 section prints `(nothing stored)`.
+
+This transcript was regenerated after a full `fresh_session.py` rebuild. The
+wall-clock timestamps moved, and nothing else did: same blocks, same 214-block
+gap, same rule `R-81`, same 0.7334 falling to 0.2713. The replay has no wall
+clock and no RNG on the decision path, so a second run over the same scan
+produces the same store.
 
 Job 31495 was drawn from the 187 reversals after the outcomes were known. The
 aggregate table above is what carries the claim.
@@ -644,10 +650,28 @@ Five primitives, each doing work the product depends on.
 
 HOT and REFERENCE are unused. The store is a local file the agent owns.
 
-Current store: **36,724 journal events**, **439 entities** (271 providers, 156
-rules, 5 declarations, 5 requests, 1 response record, 1 calibration ledger),
-~80 MB on an uncapped account. The eleven declaration, request and response
-rows are the coordination layer's own writes.
+Current store, after a `fresh_session.py` rebuild plus the coordination record
+replayed back in from `docs/data/coordination.json`:
+
+| Tier | Holds | Count |
+|---|---|---|
+| COLD | decisions and episodes | 36,724 |
+| WARM | provider records | 271 |
+| WARM | rules currently believed | 133 |
+| ARCHIVE | rules demoted and retired | 23 |
+| WARM | response record, calibration ledger | 2 |
+
+406 live entities, ~80 MB on an uncapped account.
+
+The 133 and the 23 are the same 156 the lifecycle table counts. A demoted rule
+leaves WARM for ARCHIVE, so the number Priors currently believes is smaller than
+the number it has ever written, and both are visible in the store rather than
+inferred.
+
+The declaration and request rows the live agents wrote are not in this rebuild.
+`fresh_session.py` deletes the store and replays the scan, which restores
+everything the scan produced and nothing the agents wrote against Base. The
+coordination record is committed at `docs/data/coordination.json` instead.
 
 `read_events` clamps any limit to 10,000 and returns the most recent page, a
 deliberate control since SQLite reads a negative `LIMIT` as unbounded.
