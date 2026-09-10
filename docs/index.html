@@ -236,6 +236,34 @@
   .note p { margin: 0 0 10px; }
   .note p:last-child { margin: 0; }
 
+  .instruct { font-size: clamp(16px, 1.7vw, 19px); max-width: 68ch; margin: 26px 0 0; }
+  .desk-head { padding: 26px 28px; border-bottom: 1px solid var(--line); }
+  .hint { display: block; font-size: 14px; color: var(--muted); margin-top: 10px; max-width: 76ch; }
+  .ctl .label b { color: var(--amber); margin-left: 8px; }
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); }
+  @media (max-width: 720px) { .vs { grid-template-columns: 1fr; } }
+  .col { background: var(--raise); padding: 26px 28px 30px; }
+  .col.intact  { background: var(--red-bg); }
+  .col.deleted { background: var(--green-bg); }
+  .col-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 20px; }
+  .col-head b { font-size: 17px; }
+  .col-sub { font-size: 14px; color: var(--muted); width: 100%; }
+  .dotmark { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .dotmark.red { background: var(--red); } .dotmark.green { background: var(--green); }
+  .row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--line);
+    font-size: 15px; color: var(--muted);
+  }
+  .row b { color: var(--paper); font-size: 16px; }
+  .row b.big { font-size: clamp(24px, 3vw, 32px); font-weight: 800; }
+  .col-verdict {
+    font-family: ui-monospace, Consolas, monospace; font-weight: 800;
+    font-size: clamp(17px, 2.2vw, 22px); margin-top: 20px; color: var(--red);
+  }
+  .col-verdict.pass { color: var(--green); }
+  .col-why { font-size: 14px; color: var(--muted); margin-top: 7px; }
+
   .desk {
     border: 1px solid var(--line); background: var(--raise); margin: 30px 0 0;
   }
@@ -371,42 +399,49 @@
     <h2>Delete the memory. Watch the decision change.</h2>
     <p class="sub">This is the real record: 18 observations of one counterparty, every one of them a job on Base. The arithmetic below is the response gate from <span class="mono">priors/coordination.py</span>, running in your browser over that record. Turn the memory off, or push the clock forward and watch the evidence decay.</p>
 
+    <p class="instruct">Both columns run the same code, on the same request, against the same counterparty. The only difference is whether the agent can remember the last eighteen times it dealt with them.</p>
+
     <div class="desk">
-      <div class="desk-controls">
-        <div class="ctl">
-          <span class="label">Memory</span>
-          <div class="toggle" role="group" aria-label="Memory state">
-            <button type="button" id="mem-on"  class="on"  aria-pressed="true">INTACT</button>
-            <button type="button" id="mem-off" aria-pressed="false">DELETED</button>
-          </div>
-        </div>
+      <div class="desk-head">
         <div class="ctl grow">
-          <span class="label">Clock <span id="day-label" class="mono"></span></span>
+          <span class="label">Evidence age <b id="day-label" class="mono">today</b></span>
           <input type="range" id="days" min="0" max="6" step="0.25" value="0"
-                 aria-label="Days from now">
+                 aria-label="How old the evidence is, in days">
+          <span class="hint">Drag right. A broken promise halves in weight each day, so the left column climbs until the evidence expires on day five and the two columns agree.</span>
         </div>
       </div>
 
-      <div class="desk-out">
-        <div class="out-cell">
-          <span class="label">Will it complete</span>
-          <div class="figure" id="p-complete">0.7947</div>
-          <div class="mono gate" id="g-complete">PASS, bar 0.5000</div>
+      <div class="vs">
+        <div class="col intact">
+          <div class="col-head">
+            <span class="dotmark red"></span>
+            <b>Memory intact</b>
+            <span class="col-sub">18 observations recalled</span>
+          </div>
+          <div class="row"><span>Will it complete</span><b class="mono" id="c-a">0.7947</b></div>
+          <div class="row"><span>Will it respond</span><b class="mono big" id="r-a">0.1698</b></div>
+          <div class="row"><span>Bar to clear</span><b class="mono">0.4669</b></div>
+          <div class="col-verdict" id="v-a">NO JOB CREATED</div>
+          <div class="col-why" id="w-a">the record does not clear the bar</div>
         </div>
-        <div class="out-cell">
-          <span class="label">Will it respond</span>
-          <div class="figure" id="p-respond">0.1666</div>
-          <div class="mono gate" id="g-respond">FAIL, bar 0.4669</div>
-        </div>
-        <div class="out-cell verdict-cell">
-          <span class="label">Action</span>
-          <div class="verdict" id="verdict">NO JOB CREATED</div>
-          <div class="mono gate" id="why">blocked by coordination</div>
+
+        <div class="col deleted">
+          <div class="col-head">
+            <span class="dotmark green"></span>
+            <b>Memory deleted</b>
+            <span class="col-sub">nothing to recall</span>
+          </div>
+          <div class="row"><span>Will it complete</span><b class="mono">0.7947</b></div>
+          <div class="row"><span>Will it respond</span><b class="mono big" id="r-b">0.4669</b></div>
+          <div class="row"><span>Bar to clear</span><b class="mono">0.4669</b></div>
+          <div class="col-verdict pass">JOB CREATED</div>
+          <div class="col-why">an unknown counterparty is treated as typical, so it passes</div>
         </div>
       </div>
 
       <div class="desk-obs">
-        <span class="label">The record, and what decay leaves of it</span>
+        <span class="label">What the left column is remembering</span>
+        <span class="hint">Each one is a job on Base. Green kept its promise, red broke it. The weight is what decay has left of it.</span>
         <div id="obs" class="obs-grid"></div>
       </div>
     </div>
@@ -459,7 +494,7 @@
     <p>Reliability moved only as evidence arrived: <span class="mono">0.4669 &rarr; 0.5556 &rarr; 0.4757 &rarr; 0.4160 &rarr; 0.1666</span> across 18 observations. It crossed the bar on the third, not the first, because one broken promise against one kept promise is not yet evidence.</p>
 
     <div class="note">
-      <p><strong>There is no transaction for the refused job, and that is the result.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been. The absence is the evidence.</p>
+      <p><strong>There is no transaction for the refused job, and that is the result.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been.</p>
     </div>
 
     <p class="sub">Total spend across every live job: 0.03 USDC. A job nobody answers is never funded, so sixteen broken promises cost sponsored gas and nothing else. Evidence decays by half a day, so this figure is quoted at block 51,120,396 and climbs back toward the bar as it ages: 0.2170 on Sep 11, 0.2860 on Sep 12, expiring Sep 15.</p>
@@ -731,98 +766,76 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
 
 <script>
 /* The response gate, reimplemented from priors/coordination.py so it runs with
-   no server. The record below is a snapshot of the agent's Sibyl store, and the
-   arithmetic is the same three lines: decay each observation, shrink toward the
-   marketplace prior, compare against that same prior.
+   no server. Both columns are computed every frame: the left recalls the real
+   record, the right recalls nothing. The right one never moves, and that is the
+   point rather than a bug: with no evidence there is nothing for decay to act
+   on, so an unknown counterparty sits on the marketplace prior forever.
 
-   The one subtlety worth preserving: with no evidence at all the Python returns
-   the prior constant itself, not a computed value that merely rounds to it, so
-   an unknown counterparty sits exactly on the bar and passes. Computing it
-   would land on 0.46690000000000004 and fail a >= comparison. */
+   The empty case returns the prior constant itself, not a computed value that
+   rounds to it. Computing lands on 0.46690000000000004 and fails a >= against
+   0.4669, which would shut the gate on a counterparty nobody has ever met. */
 (function () {
   var DATA = {"generated_at_block":51122931,"generated_at_unix":1789035209,"provider":"0x5043147b8b666ac070e01ff659e1fbbbc2462bc7","declared":24,"constants":{"prior":0.4669,"k":5.0,"half_life_blocks":43200,"expiry_blocks":216000,"blocks_per_day":43200,"p_complete":0.7947,"hire_threshold":0.5},"observations":[{"block":50965297,"confirmed":true,"job":76935},{"block":50965839,"confirmed":false,"job":76936},{"block":50966417,"confirmed":false,"job":76941},{"block":51105383,"confirmed":true,"job":77933},{"block":51105589,"confirmed":false,"job":77934},{"block":51105944,"confirmed":false,"job":77939},{"block":51106129,"confirmed":false,"job":77940},{"block":51118220,"confirmed":false,"job":77942},{"block":51118478,"confirmed":false,"job":78034},{"block":51118768,"confirmed":false,"job":78035},{"block":51118959,"confirmed":false,"job":78040},{"block":51119150,"confirmed":false,"job":78041},{"block":51119375,"confirmed":false,"job":78042},{"block":51119589,"confirmed":false,"job":78046},{"block":51119782,"confirmed":false,"job":78047},{"block":51119969,"confirmed":false,"job":78051},{"block":51120163,"confirmed":false,"job":78053},{"block":51120360,"confirmed":false,"job":78054}]};
   var C = DATA.constants;
-  var out = document.getElementById("obs");
-  if (!out) return;
+  var grid = document.getElementById("obs");
+  if (!grid) return;
+  var days = 0;
 
-  var memory = true, days = 0;
-
-  function weight(ageBlocks) {
-    if (ageBlocks >= C.expiry_blocks) return 0;
-    if (ageBlocks <= 0) return 1;
-    return Math.pow(0.5, ageBlocks / C.half_life_blocks);
+  function weight(age) {
+    if (age >= C.expiry_blocks) return 0;
+    if (age <= 0) return 1;
+    return Math.pow(0.5, age / C.half_life_blocks);
   }
 
   function reliability(asOf) {
-    if (!memory) return C.prior;                 // nothing recalled
     var acted = 0, conf = 0;
     DATA.observations.forEach(function (o) {
       var w = weight(asOf - o.block);
       acted += w;
       if (o.confirmed) conf += w;
     });
-    if (acted === 0) return C.prior;             // the constant, not a computation
+    if (acted === 0) return C.prior;
     return (conf + C.k * C.prior) / (acted + C.k);
   }
 
-  function fmt(x) { return x.toFixed(4); }
+  function label(d) {
+    if (d === 0) return "today";
+    if (d === 1) return "1 day later";
+    return (Math.round(d * 100) / 100) + " days later";
+  }
 
   function render() {
     var asOf = DATA.generated_at_block + Math.round(days * C.blocks_per_day);
     var r = reliability(asOf);
-    var respondOk = r >= C.prior;
-    var completeOk = C.p_complete >= C.hire_threshold;
-    var proceed = respondOk && completeOk;
+    var pass = r >= C.prior;
 
-    document.getElementById("day-label").textContent =
-      days === 0 ? "now" : "+" + days.toFixed(2).replace(/\.?0+$/, "") + " days";
+    document.getElementById("day-label").textContent = label(days);
+    document.getElementById("r-a").textContent = r.toFixed(4);
+    document.getElementById("r-b").textContent = C.prior.toFixed(4);
 
-    document.getElementById("p-complete").textContent = fmt(C.p_complete);
-    var gc = document.getElementById("g-complete");
-    gc.textContent = (completeOk ? "PASS" : "FAIL") + ", bar " + fmt(C.hire_threshold);
-    gc.className = "mono gate " + (completeOk ? "pass" : "fail");
+    var v = document.getElementById("v-a"), w = document.getElementById("w-a");
+    v.textContent = pass ? "JOB CREATED" : "NO JOB CREATED";
+    v.className = "col-verdict" + (pass ? " pass" : "");
+    w.textContent = pass
+      ? "the evidence has expired, so this is an unknown counterparty again"
+      : "the record does not clear the bar";
 
-    var pr = document.getElementById("p-respond");
-    pr.textContent = fmt(r);
-    pr.className = "figure " + (respondOk ? "pass" : "fail");
-    var gr = document.getElementById("g-respond");
-    gr.textContent = (respondOk ? "PASS" : "FAIL") + ", bar " + fmt(C.prior);
-    gr.className = "mono gate " + (respondOk ? "pass" : "fail");
-
-    var v = document.getElementById("verdict");
-    v.textContent = proceed ? "JOB CREATED" : "NO JOB CREATED";
-    v.className = "verdict " + (proceed ? "pass" : "fail");
-    document.getElementById("why").textContent = !memory
-      ? "no record, an unknown counterparty is treated as typical"
-      : proceed ? "the record no longer clears the bar downward"
-                : "blocked by coordination";
-
-    out.innerHTML = "";
+    grid.innerHTML = "";
     DATA.observations.forEach(function (o) {
-      var w = memory ? weight(asOf - o.block) : 0;
+      var wt = weight(asOf - o.block);
       var el = document.createElement("div");
       el.className = "obs " + (o.confirmed ? "kept" : "broken") +
-                     (w === 0 ? " gone" : "");
+                     (wt === 0 ? " gone" : "");
       el.innerHTML = "<b>job " + o.job + "</b>" +
                      (o.confirmed ? "kept" : "broken") +
-                     "<br>weight " + w.toFixed(3);
-      out.appendChild(el);
+                     "<br>weight " + wt.toFixed(3);
+      grid.appendChild(el);
     });
   }
 
-  function setMemory(on) {
-    memory = on;
-    var a = document.getElementById("mem-on"), b = document.getElementById("mem-off");
-    a.className = on ? "on" : ""; b.className = on ? "" : "on";
-    a.setAttribute("aria-pressed", String(on));
-    b.setAttribute("aria-pressed", String(!on));
-    render();
-  }
-
-  document.getElementById("mem-on").onclick  = function () { setMemory(true); };
-  document.getElementById("mem-off").onclick = function () { setMemory(false); };
   document.getElementById("days").oninput = function () {
-    days = parseFloat(this.value); render();
+    days = parseFloat(this.value);
+    render();
   };
   render();
 })();
