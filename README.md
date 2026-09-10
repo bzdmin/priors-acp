@@ -525,12 +525,30 @@ since it holds a live wallet.
   `JobCreated` and nothing else, which is what a broken availability promise
   looks like on chain:
 
-  ```
-  kept      76935  76945  77933
-  broken    76936  76941  77934  77939  77940  77942  78034  78035
-            78040  78041  78042  78046  78047  78051  78053  78054
-  first     76736  76737   the two jobs before any of this, both completed
-  ```
+
+  | Job | What happened |
+  |---|---|
+  | [76736](https://basescan.org/tx/0x0d766373ee00d89c14918bc4ab61697fd5f9fb3cd2dd4a834fb02e67b9d87049) | responded, funded, completed |
+  | [76737](https://basescan.org/tx/0xa65c6eeb92ffc06682fe2e2d4cf4ca2edf615e33d0891077ca09726d4e75a382) | responded, funded, completed |
+  | [76935](https://basescan.org/tx/0x8a5ef9eeccef4ac583f4fd1fa1984435974d15345dac3337e4083dca6813681a) | responded, funded, completed |
+  | [76945](https://basescan.org/tx/0x0109d88db3fc523d4b14b80036a4c14f71aa5372f629b8b0acf771947db08228) | responded, funded, completed |
+  | [77933](https://basescan.org/tx/0x9ae148ebd670830d1511d178ce847b4bd87f69184c6b2e57eca9f52a89ddd8d0) | responded, funded, completed |
+  | [76936](https://basescan.org/tx/0x29f6a63676adb2ef74d839ecbd475bb74923b52ad3e8c7b3b689b03d8b73d0d7) | created, never answered |
+  | [76941](https://basescan.org/tx/0x189feb2f30aabccd7165491b84d46b5e70d31dc390b68832b595f8e2a918a22f) | created, never answered |
+  | [77934](https://basescan.org/tx/0x7162d34c2f76cd21b4fbfe4d3088313d2e1b93f6b21c16f6ce8de22d11092470) | created, never answered |
+  | [77939](https://basescan.org/tx/0x1acc057e87ca0e293570ad69a44e093cdd0a389a2b818766cd487e23298e4736) | created, never answered |
+  | [77940](https://basescan.org/tx/0x5e78dcbeb81f8ee2d0a2a2db3b0d90c2dd5ec257767e2468953c7872c0fd7939) | created, never answered |
+  | [77942](https://basescan.org/tx/0x4dd1a81af13846adc593d5e5f650544ef72175f8ae77dd3eb503722bae0772c6) | created, never answered |
+  | [78034](https://basescan.org/tx/0x45bd6cd272ea73726d48b754a6c9e697b2c592934f663f9d4809ff8c325c2da6) | created, never answered |
+  | [78035](https://basescan.org/tx/0x93101dd5636f8b764af309c8bb847d1c7fd2c36b10b830490086ae885229ba30) | created, never answered |
+  | [78040](https://basescan.org/tx/0x9ab46178172771a93df74fc6f055d3940bb3345be40978b258a6c96539be1a18) | created, never answered |
+  | [78041](https://basescan.org/tx/0x5863ba03d69a2f5a772da0656ae0d4468b11411736c433d9ddf5d6bd0abbb651) | created, never answered |
+  | [78042](https://basescan.org/tx/0x026c7e972eb1d418aff5ca6d49326c04711ae8bc31b59baa9beb10df99ab8c26) | created, never answered |
+  | [78046](https://basescan.org/tx/0xf852f97febf547b59a2a8f9d666046a0bd5b78b04b6f73cb99f1ecb8ce27a95a) | created, never answered |
+  | [78047](https://basescan.org/tx/0xef25d01f685c7e41307db3bced4e385c486face72d09f4a96013a37992f047d4) | created, never answered |
+  | [78051](https://basescan.org/tx/0xb600385914345bc4d99a167af2650644ac82913c016ebe90d833ce1cfef7795b) | created, never answered |
+  | [78053](https://basescan.org/tx/0xe8b5f947460684d445b9f87e5b4e77686d431d02d6e29581fbe8766d4a393915) | created, never answered |
+  | [78054](https://basescan.org/tx/0x7fec8de4c5057108f42211e9c60e873b8311aa06e022addfe97f4f87e0fdcc8c) | created, never answered |
 - **Both agents are on Base, and every job either has made is public.**
   Priors as buyer and Digest as provider with the `textDigest` offering:
 

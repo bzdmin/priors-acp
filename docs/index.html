@@ -221,6 +221,11 @@
   }
   td.num { font-family: ui-monospace, Consolas, monospace; }
   td.kept   { color: var(--green); font-weight: 600; }
+  td.kept a, td.broken a {
+    color: inherit; text-decoration: none;
+    border-bottom: 1px solid currentColor; padding-bottom: 1px;
+  }
+  td.kept a:hover, td.broken a:hover { color: var(--amber); }
   td.broken { color: var(--red);   font-weight: 600; }
 
   pre {
@@ -537,25 +542,29 @@
         <tbody>
           <tr>
             <td>A provider can declare availability and keep it</td>
-            <td class="kept">jobs 76935, 76945, 77933 responded, funded, completed</td>
+            <td class="kept"><a href="https://basescan.org/tx/0x8a5ef9eeccef4ac583f4fd1fa1984435974d15345dac3337e4083dca6813681a" title="job 76935 on BaseScan">76935</a>, <a href="https://basescan.org/tx/0x0109d88db3fc523d4b14b80036a4c14f71aa5372f629b8b0acf771947db08228" title="job 76945 on BaseScan">76945</a> and <a href="https://basescan.org/tx/0x9ae148ebd670830d1511d178ce847b4bd87f69184c6b2e57eca9f52a89ddd8d0" title="job 77933 on BaseScan">77933</a>. Each one of the three responded, was funded, and completed</td>
           </tr>
           <tr>
             <td>It can declare availability and break it</td>
-            <td class="num"><a href="https://basescan.org/tx/0x29f6a63676adb2ef74d839ecbd475bb74923b52ad3e8c7b3b689b03d8b73d0d7">0x29f6a636…</a> job 76936, created, never answered</td>
+            <td class="broken"><a href="https://basescan.org/tx/0x29f6a63676adb2ef74d839ecbd475bb74923b52ad3e8c7b3b689b03d8b73d0d7" title="job 76936 on BaseScan">76936</a>. Created, and never answered</td>
           </tr>
           <tr>
             <td>It is a pattern, not one bad day</td>
-            <td class="broken">16 broken declarations: 76936, 76941, 77934, 77939, 77940, 77942, 78034, 78035, 78040, 78041, 78042, 78046, 78047, 78051, 78053, 78054</td>
+            <td class="broken">16 broken declarations, each created and never answered: <a href="https://basescan.org/tx/0x29f6a63676adb2ef74d839ecbd475bb74923b52ad3e8c7b3b689b03d8b73d0d7" title="job 76936 on BaseScan">76936</a>, <a href="https://basescan.org/tx/0x189feb2f30aabccd7165491b84d46b5e70d31dc390b68832b595f8e2a918a22f" title="job 76941 on BaseScan">76941</a>, <a href="https://basescan.org/tx/0x7162d34c2f76cd21b4fbfe4d3088313d2e1b93f6b21c16f6ce8de22d11092470" title="job 77934 on BaseScan">77934</a>, <a href="https://basescan.org/tx/0x1acc057e87ca0e293570ad69a44e093cdd0a389a2b818766cd487e23298e4736" title="job 77939 on BaseScan">77939</a>, <a href="https://basescan.org/tx/0x5e78dcbeb81f8ee2d0a2a2db3b0d90c2dd5ec257767e2468953c7872c0fd7939" title="job 77940 on BaseScan">77940</a>, <a href="https://basescan.org/tx/0x4dd1a81af13846adc593d5e5f650544ef72175f8ae77dd3eb503722bae0772c6" title="job 77942 on BaseScan">77942</a>, <a href="https://basescan.org/tx/0x45bd6cd272ea73726d48b754a6c9e697b2c592934f663f9d4809ff8c325c2da6" title="job 78034 on BaseScan">78034</a>, <a href="https://basescan.org/tx/0x93101dd5636f8b764af309c8bb847d1c7fd2c36b10b830490086ae885229ba30" title="job 78035 on BaseScan">78035</a>, <a href="https://basescan.org/tx/0x9ab46178172771a93df74fc6f055d3940bb3345be40978b258a6c96539be1a18" title="job 78040 on BaseScan">78040</a>, <a href="https://basescan.org/tx/0x5863ba03d69a2f5a772da0656ae0d4468b11411736c433d9ddf5d6bd0abbb651" title="job 78041 on BaseScan">78041</a>, <a href="https://basescan.org/tx/0x026c7e972eb1d418aff5ca6d49326c04711ae8bc31b59baa9beb10df99ab8c26" title="job 78042 on BaseScan">78042</a>, <a href="https://basescan.org/tx/0xf852f97febf547b59a2a8f9d666046a0bd5b78b04b6f73cb99f1ecb8ce27a95a" title="job 78046 on BaseScan">78046</a>, <a href="https://basescan.org/tx/0xef25d01f685c7e41307db3bced4e385c486face72d09f4a96013a37992f047d4" title="job 78047 on BaseScan">78047</a>, <a href="https://basescan.org/tx/0xb600385914345bc4d99a167af2650644ac82913c016ebe90d833ce1cfef7795b" title="job 78051 on BaseScan">78051</a>, <a href="https://basescan.org/tx/0xe8b5f947460684d445b9f87e5b4e77686d431d02d6e29581fbe8766d4a393915" title="job 78053 on BaseScan">78053</a>, <a href="https://basescan.org/tx/0x7fec8de4c5057108f42211e9c60e873b8311aa06e022addfe97f4f87e0fdcc8c" title="job 78054 on BaseScan">78054</a></td>
           </tr>
           <tr>
             <td><strong>Memory then blocked a job Rules-v2 approved</strong></td>
-            <td><strong>no transaction exists, and that is the evidence</strong></td>
+            <td><strong>No transaction exists</strong></td>
           </tr>
           <tr>
             <td>The same code with memory deleted proceeded</td>
-            <td class="num"><a href="https://basescan.org/tx/0x0109d88db3fc523d4b14b80036a4c14f71aa5372f629b8b0acf771947db08228">0x0109d88d…</a> job 76945, created, funded, completed</td>
+            <td class="kept"><a href="https://basescan.org/tx/0x0109d88db3fc523d4b14b80036a4c14f71aa5372f629b8b0acf771947db08228" title="job 76945 on BaseScan">76945</a>. Created, funded, and completed</td>
           </tr>
-        </tbody>
+          <tr>
+            <td>The two jobs before any of this, when Digest was unknown</td>
+            <td class="kept"><a href="https://basescan.org/tx/0x0d766373ee00d89c14918bc4ab61697fd5f9fb3cd2dd4a834fb02e67b9d87049" title="job 76736 on BaseScan">76736</a> and <a href="https://basescan.org/tx/0xa65c6eeb92ffc06682fe2e2d4cf4ca2edf615e33d0891077ca09726d4e75a382" title="job 76737 on BaseScan">76737</a>. Both completed, and memory changed nothing</td>
+          </tr>
+</tbody>
       </table>
     </div>
 
