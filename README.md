@@ -415,7 +415,7 @@ either, so every collection hire bypasses, not only the ones meant to fail.
 ### The result, on its own terms
 
 ```bash
-python scripts/coordination_report.py --provider 0x5043147b8b666ac070e01ff659e1fbbbc2462bc7
+python scripts/coordination_report.py \n  --provider 0x5043147b8b666ac070e01ff659e1fbbbc2462bc7 \n  --from-export docs/data/coordination.json
 ```
 
 Digest was told to break its promise deterministically, via
@@ -459,6 +459,13 @@ promise is not yet evidence.
 Reliability is **0.1666** against a bar of **0.4669**, evaluated at block
 51,120,396 on 2026-09-10.
 
+The commands above read `docs/data/coordination.json` rather than a live Sibyl
+store, because `fresh_session.py` deletes the store and rebuilds it from the
+scan. That restores every decision, episode, provider record and rule, and it
+cannot restore the coordination rows, which were written by the live agents
+against Base and not by the replay. The export is the record of those, and it is
+committed.
+
 That figure will not be what you get. A broken promise halves in weight each
 day, so reliability climbs back toward the prior as the evidence ages:
 
@@ -479,7 +486,7 @@ Then the same job twice, same counterparty, same declaration, same Rules-v2
 output of 0.7947. Run 2026-09-10, block 51,120,396:
 
 ```
-$ python scripts/coordination_report.py --provider 0x5043147b8b666ac070e01ff659e1fbbbc2462bc7
+$ python scripts/coordination_report.py \n  --provider 0x5043147b8b666ac070e01ff659e1fbbbc2462bc7 \n  --from-export docs/data/coordination.json
 
   declarations made        : 24
   of those, acted on       : 18
