@@ -204,13 +204,22 @@
     letter-spacing: 0.05em; color: var(--muted);
   }
 
-  .bignum { display: flex; align-items: center; gap: 38px; flex-wrap: wrap; margin-bottom: 10px; }
+  .bignum {
+    display: flex; align-items: center; gap: 44px; flex-wrap: wrap;
+    margin: 6px 0 22px;
+  }
   .bignum .n {
     font-family: ui-monospace, Consolas, monospace;
-    font-size: clamp(54px, 9vw, 118px); font-weight: 800;
-    letter-spacing: -0.045em; line-height: 0.86; color: var(--amber);
+    font-size: clamp(66px, 12vw, 168px); font-weight: 800;
+    letter-spacing: -0.05em; line-height: 0.82; color: var(--amber);
   }
-  .bignum .of { font-size: clamp(18px, 2.4vw, 27px); color: var(--muted); max-width: 20ch; line-height: 1.28; }
+  .bignum .of {
+    font-size: clamp(20px, 2.7vw, 31px); color: var(--muted);
+    max-width: 19ch; line-height: 1.24;
+  }
+  /* the figure, its caption and the headline are one masthead, so the body
+     copy needs air under it rather than butting straight on */
+  .bignum + h2 { margin: 0 0 44px; max-width: 24ch; font-size: clamp(26px, 3.6vw, 42px); }
 
   .scroll { overflow-x: auto; margin: 28px 0; }
   table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 15px; }
@@ -568,7 +577,7 @@
       </table>
     </div>
 
-    <p>Reliability moved only as evidence arrived: <span class="mono">0.4669 &rarr; 0.5556 &rarr; 0.4757 &rarr; 0.4160 &rarr; 0.1666</span> across 18 observations. It crossed the bar on the third, not the first, because one broken promise against one kept promise is not yet evidence.</p>
+    <p>Reliability moved only as evidence arrived: <span class="mono">0.4669 &rarr; 0.5556 &rarr; 0.4757 &rarr; 0.4160 &rarr; 0.1666</span> across 18 observations. It fell below the bar on the third because one broken promise against one kept promise is not yet evidence.</p>
 
     <div class="note">
       <p><strong>There is no transaction for the refused job.</strong> Running with memory intact, Priors refused to create the job at all, so nothing was signed and nothing was spent.</p>
