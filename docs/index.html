@@ -149,9 +149,10 @@
 
   .stats { border-top: 1px solid var(--line); background: var(--alt); }
   .stats-row {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 0 34px; padding: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0 30px; padding: 0;
   }
+  @media (max-width: 760px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
   .stat {
     padding: 40px 0 42px; position: relative;
   }
@@ -162,12 +163,26 @@
   @media (max-width: 640px) { .stat + .stat::before { display: none; } }
   .stat b {
     display: block; font-family: ui-monospace, Consolas, monospace;
-    font-size: clamp(38px, 5.2vw, 62px); font-weight: 800;
+    font-size: clamp(32px, 4.4vw, 54px); font-weight: 800;
     letter-spacing: -0.045em; line-height: 0.95; color: var(--amber);
   }
   .stat span {
     display: block; font-size: 13.5px; line-height: 1.35; color: var(--muted);
-    margin-top: 12px; max-width: 15ch;
+    margin-top: 12px;
+  }
+  /* the code facts are a different kind of thing from the marketplace ones,
+     so they sit under the strip rather than competing inside it */
+  .stats-foot {
+    display: flex; flex-wrap: wrap; gap: 0 26px;
+    padding: 0 26px 30px; margin-top: -14px;
+  }
+  .stats-foot span {
+    position: relative; font-size: 13px; letter-spacing: 0.08em;
+    color: var(--muted); text-transform: uppercase; padding: 4px 0;
+  }
+  .stats-foot span + span::before {
+    content: ""; position: absolute; left: -14px; top: 50%;
+    width: 3px; height: 3px; background: var(--muted); border-radius: 50%;
   }
 
   .badges { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 36px; }
@@ -432,10 +447,14 @@
   <div class="stats">
     <div class="wrap stats-row">
       <div class="stat"><b>75,340</b><span>ACP jobs scanned</span></div>
-      <div class="stat"><b>40,161</b><span>never answered at all</span></div>
+      <div class="stat"><b>40,161</b><span>never answered</span></div>
       <div class="stat"><b>187</b><span>decisions changed by memory</span></div>
       <div class="stat"><b>21</b><span>jobs on Base mainnet</span></div>
-      <div class="stat"><b>58</b><span>tests green</span></div>
+    </div>
+    <div class="wrap stats-foot">
+      <span class="mono">58 tests green</span>
+      <span class="mono">18,360 jobs replayed</span>
+      <span class="mono">live on Base mainnet</span>
     </div>
   </div>
 </header>
