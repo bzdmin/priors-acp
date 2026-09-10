@@ -10,7 +10,8 @@ with identical code.
 ## The problem
 
 Of 75,340 jobs created on ACP, **40,161 never reached a `BudgetSet` event.**
-Not rejected, not negotiated, not funded. They stopped before that step.
+They were not funded, and the chain does not tell us who was responsible for
+setting the budget.
 
 That is the marketplace an agent has to hire in, and every signal it could use
 to choose is produced by the agents it is choosing between. Completion counts,
