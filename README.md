@@ -72,7 +72,15 @@ There is no `if memory_enabled` branch, and deletion is not a mode. Stages 2
 and 3 have nothing to recall, so the prediction falls back to the shrunk
 chain-only baseline of stage 1.
 
-Of the 187 decisions memory changed, 126 were right and 61 were wrong:
+**Memory removed 64 wrong calls and improved Brier by 7.6%.** Accuracy moves
+only 0.9000 to 0.9035 because the run without memory is already strong: it still
+scans 6,319,153 blocks, decodes every ACP event and shrinks per-provider rates
+toward the market rate. That is Priors with stages 2 and 3 removed, not a chain
+lookup. Against a baseline like that, 1,836 wrong calls remain out of 18,360 and
+memory takes 64 of them, on a problem where hiring everything already scores
+79.47%.
+
+Of the 187 decisions memory changed, 126 were right and 61 were wrong, which is 67.4%:
 
 | Direction | n | memory right | memory wrong |
 |---|---|---|---|
@@ -156,7 +164,9 @@ Three stages, of which only the first survives deletion:
 
 1. **Shrunk base rate** from public chain history, using Bayesian shrinkage
    toward the 0.7947 market rate, so a provider with 3 jobs is not read like
-   one with 300.
+   one with 300. The 0.7947 is the marketplace itself: 14,597 of 18,367 funded
+   jobs completed. A provider that completed 110 of 168 shrinks to 0.6626
+   rather than its raw 0.655.
 2. **Learned rules** recalled from Sibyl, mined as conditional patterns from
    Priors' own earlier failures.
 3. **Calibration**, computed and reported but not applied, for the reasons
@@ -302,8 +312,18 @@ memory of Digest begins.
 ## Coordination: asking before creating
 
 Rules-v2 answers one question, whether a funded job will complete, which leaves
-the marketplace's largest failure untouched. Of 75,340 created jobs, only
-35,179 ever reached a `BudgetSet` event and only 18,367 were ever funded, so
+the marketplace's largest failure untouched.
+
+| | count |
+|---|---|
+| jobs created | 75,340 |
+| reached a provider response (`BudgetSet`) | 35,179 |
+| funded | 18,367 |
+| funded and completed | 14,597 |
+| died before completing | 56,973 |
+| of those, never drew a response at all | **40,161** |
+| of those, answered but never funded | 16,812 |
+
 **53.31% of created jobs never reach a provider response at all.**
 
 `BudgetSet` is the first move a provider makes on a job, before any money is
@@ -417,6 +437,21 @@ All of it costs 0.03 USDC in total. A job nobody answers is never funded, so
 sixteen broken promises cost sponsored gas and nothing else, which is itself
 the asymmetry the gate exists to exploit: silence is cheap for the counterparty
 and expensive for whoever is waiting.
+
+### How it got there
+
+Reliability moved only as evidence arrived:
+
+```
+0.4669   no record, exactly on the bar
+0.5556   one kept promise
+0.4757   one broken, still above the bar
+0.4160   two broken, below the bar and the gate shuts
+0.1666   after fourteen more broken promises
+```
+
+It fell below the bar on the third because one broken promise against one kept
+promise is not yet evidence.
 
 ### The number you will get, and when
 
