@@ -349,6 +349,19 @@
   }
   .dot { width: 3px; height: 3px; background: var(--muted); border-radius: 50%; }
 
+  .foot-links {
+    display: flex; align-items: center; gap: 18px; margin-top: 26px;
+    padding-top: 22px; border-top: 1px solid var(--line);
+  }
+  .ico-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border: 1px solid var(--line);
+    color: var(--muted); transition: color .15s ease, border-color .15s ease;
+  }
+  .ico-link:hover { color: var(--amber); border-color: var(--amber); }
+  .ico-link svg { width: 16px; height: 16px; display: block; }
+  .foot-links .totop { margin-left: auto; }
+
   .totop {
     font-family: ui-monospace, Consolas, monospace; font-size: 13.5px;
     letter-spacing: 0.06em; text-decoration: none;
@@ -716,7 +729,7 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
       </table>
     </div>
 
-    <p class="sub">The 18,360-job replay is the part that runs with no hand on it. Everything involving Digest is a controlled demonstration and is described as one.</p>
+    <p class="sub">The 18,360-job replay is the part that runs with no hand on it. Everything involving Digest is a controlled demonstration.</p>
   </div>
 </section>
 
@@ -732,13 +745,16 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
         <span class="dot"></span>
         <a href="https://virtuals.io"><span class="virtuals-ico"></span>Virtuals Protocol ACP</a>
         <span class="dot"></span>
-        <a href="https://basescan.org/address/0x238e541bfefd82238730d00a2208e5497f1832e0"><img class="base-ico" src="base-mark.png" alt="" width="128" height="128">Base mainnet</a>
+        <a href="https://www.base.org"><img class="base-ico" src="base-mark.png" alt="" width="128" height="128">Base</a>
       </div>
     </div>
-    <p style="margin: 22px 0 0;"><a class="totop" href="#top">&uarr; Back to top</a></p>
-    <p style="margin: 14px 0 0;">
-      <a href="https://github.com/bzdmin/priors-acp">github.com/bzdmin/priors-acp</a>
-    </p>
+    <div class="foot-links">
+      <a class="ico-link" href="https://github.com/bzdmin/priors-acp"
+         aria-label="Priors on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
+      <a class="ico-link" href="https://x.com/bhadmee"
+         aria-label="Priors on X" title="Build log on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93ZM17.6 20.64h2.04L6.49 3.24H4.3Z"/></svg></a>
+      <a class="totop" href="#top">&uarr; Back to top</a>
+    </div>
   </div>
 </footer>
 <script>
