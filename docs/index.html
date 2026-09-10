@@ -644,7 +644,7 @@
           <span class="label">Evidence age <b id="day-label" class="mono">today</b></span>
           <input type="range" id="days" min="0" max="6" step="0.25" value="0"
                  aria-label="How old the evidence is, in days">
-          <span class="hint">Drag right. A broken promise halves in weight each day and is dropped entirely after five, because the gate stops Priors creating jobs for a provider it has blocked, and only a job can produce the observation that would clear it. Without expiry a provider blocked once could never recover, so the left column climbs until day five and the two columns agree.</span>
+          <span class="hint">Drag right. A broken promise halves in weight each day and stops counting after five, at which point a provider with nothing else on its record sits back on the marketplace prior. That expiry exists because the gate stops Priors creating jobs for a provider it has blocked, and only a job can produce the observation that would clear it, so without it a provider blocked once could never recover.</span>
         </div>
       </div>
 

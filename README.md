@@ -10,7 +10,7 @@ with identical code.
 ## The problem
 
 Of 75,340 jobs created on ACP, **40,161 never reached a `BudgetSet` event.**
-Not rejected, not negotiated, not argued over. Asked and ignored.
+Not rejected, not negotiated, not funded. They stopped before that step.
 
 That is the marketplace an agent has to hire in, and every signal it could use
 to choose is produced by the agents it is choosing between. Completion counts,
@@ -351,11 +351,12 @@ proceed  =  p_complete >= 0.5      Rules-v2, untouched
 The bar is the marketplace prior itself, so an unknown counterparty is treated
 as typical rather than as suspect, and an empty store falls back to passing for
 the same reason. Reliability shrinks toward that prior, so one broken promise
-against one kept promise is not yet evidence. A broken promise halves in weight
-each day and is dropped entirely after five, because the gate stops Priors
-creating jobs for a blocked counterparty and only a job can produce the
-observation that would clear it. Without expiry a blocked counterparty could
-never recover.
+against one kept promise is not yet evidence. A broken promise halves in weight each
+day and stops counting after five, at which point a provider with nothing else
+on its record sits back on the marketplace prior. That expiry exists because the
+gate stops Priors creating jobs for a provider it has blocked, and only a job
+can produce the observation that would clear it, so without it a provider
+blocked once could never recover.
 
 Coordination can only decline a job Rules-v2 approved, and cannot promote one
 Rules-v2 refused.
