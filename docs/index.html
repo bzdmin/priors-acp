@@ -360,7 +360,7 @@
 
     <div class="hero">
       <h1>An agent that <em>predicts before it hires</em>, and remembers when it was wrong.</h1>
-      <p>Priors is a buyer agent on Virtuals Protocol ACP. Before hiring anyone it writes down what it expects to happen, then reads back what actually did. What it learns lives in Sibyl Memory. Delete that memory and it demonstrably behaves differently.</p>
+      <p>Priors is a buyer agent on Virtuals Protocol ACP, and before hiring anyone it writes down what it expects to happen, then reads back what actually did. What it learns lives in Sibyl Memory, and deleting that memory demonstrably changes what it does.</p>
       <div class="cta">
         <a class="btn primary" href="#try">Delete the memory &rarr;</a>
         <a class="btn" href="https://github.com/bzdmin/priors-acp">Read the code</a>
@@ -395,7 +395,7 @@
       </div>
       <div class="pane deleted">
         <div class="label is-deleted">Memory deleted</div>
-        <p class="said">Identical binary, identical provider, identical declaration. No record that any of it ever happened.</p>
+        <p class="said">Identical binary, identical provider and identical declaration, with no record that any of it happened.</p>
         <div class="figure deleted">0.4669</div>
         <div class="label">will it respond at all &nbsp;·&nbsp; bar 0.4669</div>
         <div class="verdict deleted">JOB CREATED</div>
@@ -513,7 +513,7 @@
       <p><strong>There is no transaction for the refused job.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been.</p>
     </div>
 
-    <p class="sub">0.03 USDC across all of it. A job nobody answers is never funded, so sixteen broken promises cost sponsored gas and nothing else.</p>
+    <p class="sub">0.03 USDC across all of it, because a job nobody answers is never funded and sixteen broken promises cost sponsored gas and nothing else.</p>
   </div>
 </section>
 
@@ -525,7 +525,7 @@
       <div class="of">of 75,340 ACP jobs never get a provider response at all</div>
     </div>
     <h2>The marketplace's largest failure is silence, not bad work</h2>
-    <p>Of 75,340 jobs created, 18,367 were funded. Of the 56,973 that died, <strong>40,161 drew no provider response at all</strong>, and 16,812 got an answer but never reached funding.</p>
+    <p>Of 75,340 jobs created only 18,367 were funded, and of the 56,973 that died, <strong>40,161 drew no provider response at all</strong> while 16,812 got an answer but never reached funding.</p>
     <p>Predicting whether a job completes does nothing about that, so Priors asks first and weighs the answer against its record of the same provider's earlier ones.</p>
     <p class="sub">A provider response here means a <span class="mono">BudgetSet</span> event, the provider-side response step in the ACP SDK. The event carries no setter address, so this is a response rate and is not presented as an acceptance or silence rate.</p>
   </div>
@@ -552,8 +552,8 @@
     <p>126 right, 61 wrong, and nearly all the same shape: memory overruling a hire the chain record endorsed, on a job that then failed.</p>
 
     <div class="note">
-      <p><strong>The aggregate movement is small.</strong> Accuracy moves from 0.9000 to 0.9035. The reason is that chain evidence alone is already strong: per-provider completion rates with no memory at all reach 90%. Most of those 18,360 jobs are easy calls that drown out the hard ones in any average.</p>
-      <p>The defensible claim is the reversal count, not the average. 187 of 18,360 is 1% of decisions, and a judge is entitled to weigh it accordingly.</p>
+      <p><strong>The aggregate movement is small,</strong> with accuracy moving from 0.9000 to 0.9035, because chain evidence alone is already strong enough that per-provider completion rates with no memory reach 90%. Most of those 18,360 jobs are easy calls that drown the hard ones in any average.</p>
+      <p>The defensible claim is the reversal count rather than the average, and 187 of 18,360 is 1% of decisions.</p>
     </div>
   </div>
 </section>
@@ -584,7 +584,7 @@
       <div class="card">
         <div class="k">Stage 2</div>
         <h3>Rules from its own errors</h3>
-        <p>Mined from Priors' own resolved mistakes. The lifecycle runs pattern, provisional, then graduated or demoted. Each rule applies only to jobs funded after the evidence that formed it.</p>
+        <p>Mined from Priors' own resolved mistakes, running pattern to provisional to graduated or demoted, with each rule applying only to jobs funded after the evidence that formed it.</p>
       </div>
       <div class="card">
         <div class="k">Stage 3</div>
@@ -606,7 +606,7 @@
       </table>
     </div>
 
-    <p class="sub">Nobody can write the record that judges their own claim. Priors writes decisions and requests, the resolver writes episodes and observations, and the counterparty can only declare. That separation is enforced by the API surface itself and pinned by tests.</p>
+    <p class="sub">Nobody can write the record that scores their own claim. Priors writes decisions and requests, the resolver writes episodes and observations, and the counterparty can only declare. That separation is enforced by the API surface itself and pinned by tests.</p>
   </div>
 </section>
 
@@ -614,7 +614,7 @@
   <div class="wrap">
     <div class="label" id="refuse">What Priors refuses to do</div>
     <h2>Two mechanisms were built, measured and switched off</h2>
-    <p class="sub">Both would have made memory look more load-bearing. Both were wrong on the evidence, so neither is allowed to act. The code for both is still in the repo, defaulted off.</p>
+    <p class="sub">Both would have made memory look more load-bearing, and both were wrong on the evidence, so neither is allowed to act. Neither is dead code either: they run as the B and C arms of <span class="mono">scripts/ablation.py</span>, which is what makes a negative result checkable instead of asserted.</p>
 
     <div class="cards">
       <div class="card">
@@ -650,7 +650,7 @@
       <div class="card">
         <div class="k">A clone and 30 seconds</div>
         <h3>Run the tests</h3>
-        <p>58 tests, standard library only, no fixtures and no network. Each pins a claim made on this page, including that the response bar <em>is</em> the marketplace prior rather than a constant near it, and that no writer can reach the record judging its own claim.</p>
+        <p>58 tests, standard library only, no fixtures and no network. Each pins a claim made on this page, including that the response bar <em>is</em> the marketplace prior rather than a constant near it, and that no writer can reach the record scoring its own claim.</p>
       </div>
       <div class="card">
         <div class="k">A clone and a few minutes</div>
@@ -684,18 +684,18 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
       <table>
         <thead><tr><th>Claim</th><th>Status</th></tr></thead>
         <tbody>
-          <tr><td>Predictions written before outcomes exist</td><td class="kept">Real, and structurally enforced. Each block runs absorb, predict, absorb, so a prediction cannot see its own outcome</td></tr>
-          <tr><td>187 decisions changed by memory across 18,360 jobs</td><td class="kept">Real, and reproducible from a clean clone. The scan ships with the repo</td></tr>
-          <tr><td>Deletion changes behaviour</td><td class="kept">Real. No <span class="mono">if memory_enabled</span> branch exists anywhere</td></tr>
-          <tr><td>21 jobs on Base mainnet</td><td class="kept">Real, and permanent. Including the one that does not exist</td></tr>
-          <tr><td>Accumulated over months of live trading</td><td class="broken">No. The replay runs in fast forward over already-recorded history</td></tr>
-          <tr><td>An independent counterparty</td><td class="broken">No. Digest is operated by the same builder. Both sides of every live job</td></tr>
-          <tr><td>Failures observed in the wild</td><td class="broken">No. Every one injected through <span class="mono">DIGEST_FAULT_NEXT</span>, by hand and deterministically</td></tr>
-          <tr><td>Proof that Priors hires better</td><td class="broken">No. It shows the decision depends on what was remembered. n = 18, one counterparty</td></tr>
-          <tr><td>The collection ran through the gate</td><td class="broken">No. It bypassed it, because a gate that stops you transacting also stops you measuring</td></tr>
-          <tr><td>The feature set was discovered by the miner</td><td class="broken">No. Rules are temporally clean, but the vocabulary was chosen by someone who had analysed the data</td></tr>
-          <tr><td>A large aggregate improvement</td><td class="broken">No. Accuracy moves 0.9000 to 0.9035. The 187 reversals are the claim, not the average</td></tr>
-          <tr><td>Audited</td><td class="broken">No. Hackathon-stage, no external review</td></tr>
+          <tr><td>Predictions written before outcomes exist</td><td class="kept">Real, and structurally enforced, since each block runs absorb, predict, absorb and a prediction cannot see its own outcome</td></tr>
+          <tr><td>187 decisions changed by memory across 18,360 jobs</td><td class="kept">Real, and reproducible from a clean clone, since the scan ships with the repo</td></tr>
+          <tr><td>Deletion changes behaviour</td><td class="kept">Real, with no <span class="mono">if memory_enabled</span> branch anywhere</td></tr>
+          <tr><td>21 jobs on Base mainnet</td><td class="kept">Real and permanent, including the one that does not exist</td></tr>
+          <tr><td>Accumulated over months of live trading</td><td class="broken">No, the replay runs in fast forward over already-recorded history</td></tr>
+          <tr><td>An independent counterparty</td><td class="broken">No, since Digest is operated by the same builder and is both sides of every live job</td></tr>
+          <tr><td>Failures observed in the wild</td><td class="broken">No, every one injected through <span class="mono">DIGEST_FAULT_NEXT</span>, by hand and deterministically</td></tr>
+          <tr><td>Proof that Priors hires better</td><td class="broken">No, it shows the decision depends on what was remembered, at n = 18 against one counterparty</td></tr>
+          <tr><td>The collection ran through the gate</td><td class="broken">No, it bypassed the gate, because a gate that stops you transacting also stops you measuring</td></tr>
+          <tr><td>The feature set was discovered by the miner</td><td class="broken">No, the rules are temporally clean but the vocabulary was chosen by someone who had analysed the data</td></tr>
+          <tr><td>A large aggregate improvement</td><td class="broken">No, accuracy moves 0.9000 to 0.9035, and the 187 reversals are the claim rather than the average</td></tr>
+          <tr><td>Audited</td><td class="broken">No, hackathon-stage with no external review</td></tr>
         </tbody>
       </table>
     </div>
