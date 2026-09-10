@@ -101,10 +101,20 @@
   }
   .mark { display: flex; align-items: center; gap: 13px; text-decoration: none; color: inherit; }
   .wordmark { font-size: 25px; font-weight: 800; letter-spacing: .005em; }
-  /* The S is a slot. Drop the real Sibyl mark in as an <img> and it takes the
-     same box; until then it is set in the accent so the pairing still reads. */
-  .sibyl-s { color: var(--amber); position: relative; }
-  .sibyl-s img { height: 0.82em; width: auto; vertical-align: -0.04em; display: inline-block; }
+  /* The S is the Sibyl mark. It is masked rather than drawn, so it takes the
+     page's own colour and stays legible on either ground. The letter stays in
+     the markup for anyone the mask does not reach. */
+  .sibyl-s {
+    display: inline-block; width: 0.96em; height: 0.96em;
+    vertical-align: -0.11em; margin-left: 0.04em;
+    background-color: var(--amber);
+    -webkit-mask: url(sibyl-mark.png) center/contain no-repeat;
+            mask: url(sibyl-mark.png) center/contain no-repeat;
+    color: transparent; overflow: hidden;
+  }
+  @supports not (mask: url(sibyl-mark.png)) {
+    .sibyl-s { background: none; color: var(--amber); width: auto; height: auto; }
+  }
   .verbs { display: flex; gap: 22px; }
   .verbs a {
     font-family: ui-monospace, Consolas, monospace; font-size: 13px;
@@ -321,6 +331,12 @@
     border-bottom: 1px solid transparent;
   }
   .lockup-row a:hover { border-bottom-color: var(--amber); }
+  .sibyl-ico {
+    display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.2em;
+    margin-right: 7px; background-color: currentColor;
+    -webkit-mask: url(sibyl-mark.png) center/contain no-repeat;
+            mask: url(sibyl-mark.png) center/contain no-repeat;
+  }
   .dot { width: 3px; height: 3px; background: var(--muted); border-radius: 50%; }
 
   footer { padding: 62px 0 84px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
@@ -696,7 +712,7 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
     <div class="lockup">
       <span class="label">Built on</span>
       <div class="lockup-row">
-        <a href="https://sibyllabs.org">Sibyl Memory</a>
+        <a href="https://sibyllabs.org"><span class="sibyl-ico"></span>Sibyl Memory</a>
         <span class="dot"></span>
         <a href="https://virtuals.io">Virtuals Protocol ACP</a>
         <span class="dot"></span>
