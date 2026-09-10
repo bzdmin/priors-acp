@@ -377,7 +377,7 @@
 
     <div class="hero">
       <h1>An agent that <em>predicts before it hires</em>, and remembers when it was wrong.</h1>
-      <p>Priors is a buyer agent on Virtuals Protocol ACP, and before hiring anyone it writes down what it expects to happen, then reads back what actually did. What it learns lives in Sibyl Memory, and deleting that memory demonstrably changes what it does.</p>
+      <p>Priors is a buyer agent on Virtuals Protocol ACP that writes down what it expects to happen before hiring anyone, then reads back what they actually did. What it learns lives in Sibyl Memory, and deleting that memory changes what it does.</p>
       <div class="cta">
         <a class="btn primary" href="#try">Delete the memory &rarr;</a>
         <a class="btn" href="https://github.com/bzdmin/priors-acp">Read the code</a>
@@ -527,10 +527,10 @@
     <p>Reliability moved only as evidence arrived: <span class="mono">0.4669 &rarr; 0.5556 &rarr; 0.4757 &rarr; 0.4160 &rarr; 0.1666</span> across 18 observations. It crossed the bar on the third, not the first, because one broken promise against one kept promise is not yet evidence.</p>
 
     <div class="note">
-      <p><strong>There is no transaction for the refused job.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been.</p>
+      <p><strong>There is no transaction for the refused job.</strong> Running with memory intact, Priors refused to create the job at all, so nothing was signed and nothing was spent.</p>
     </div>
 
-    <p class="sub">0.03 USDC across all of it, because a job nobody answers is never funded and sixteen broken promises cost sponsored gas and nothing else.</p>
+    <p class="sub">Total spend across all of it: 0.03 USDC.</p>
   </div>
 </section>
 
@@ -686,7 +686,7 @@ python scripts/fresh_session.py --empty      <span style="color:var(--muted)"># 
 python scripts/ablation.py                   <span style="color:var(--muted)"># the four way A/B/C/D</span></pre>
 
     <div class="note">
-      <p><strong>All of it reproduces, including the live record.</strong> The 18 observations are exported to <span class="mono">docs/data/coordination.json</span> and <span class="mono">coordination_report.py --from-export</span> replays them, so the 0.1666 above regenerates on any machine. The agent's own store stays local, which is what a store the agent owns means, but the record it holds does not have to.</p>
+      <p><strong>All of it reproduces, including the live record.</strong> The 18 observations are exported to <span class="mono">docs/data/coordination.json</span> and <span class="mono">coordination_report.py --from-export</span> replays them, so the 0.1666 above regenerates on any machine. The agent's own store stays on its machine, which is what a store the agent owns means.</p>
     </div>
   </div>
 </section>
