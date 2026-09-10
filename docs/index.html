@@ -117,6 +117,21 @@
   @supports not (mask: url(sibyl-mark.png)) {
     .sibyl-s { background: none; color: var(--amber); width: auto; height: auto; }
   }
+  .bar { gap: 14px 24px; }
+  .sitenav { display: flex; gap: 22px; flex-wrap: wrap; margin-left: auto; }
+  .sitenav a {
+    font-size: 14.5px; text-decoration: none; color: var(--muted);
+    border-bottom: 1px solid transparent; padding-bottom: 3px;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .sitenav a:hover { color: var(--paper); border-bottom-color: var(--amber); }
+  .repo-btn {
+    font-family: ui-monospace, Consolas, monospace; font-size: 13px;
+    letter-spacing: 0.05em; text-decoration: none; padding: 9px 16px;
+    border: 1px solid var(--line); color: var(--paper); white-space: nowrap;
+  }
+  .repo-btn:hover { border-color: var(--amber); }
+
   .verbs { display: flex; gap: 22px; }
   .verbs a {
     font-family: ui-monospace, Consolas, monospace; font-size: 13px;
@@ -440,7 +455,9 @@
 
     /* the verb strip wraps under the wordmark rather than crushing it */
     .bar { align-items: flex-start; }
-    .verbs { gap: 16px; flex-wrap: wrap; }
+    .sitenav { gap: 14px; margin-left: 0; width: 100%; }
+    .sitenav a { font-size: 13.5px; }
+    .repo-btn { display: none; }
 
     .stat { padding: 26px 0 28px; }
     .stats-foot { padding: 0 18px 24px; }
@@ -470,7 +487,7 @@
     .stats-row { grid-template-columns: 1fr; }
     .stat + .stat { border-top: 1px solid var(--line); }
     .stat + .stat::before { display: none; }
-    .verbs a { font-size: 12px; letter-spacing: 0.14em; }
+    .sitenav a { font-size: 13px; }
     .foot-links { gap: 12px; }
   }
 </style>
@@ -483,12 +500,14 @@
         <span class="glyph">P:</span>
         <span class="wordmark">PRIOR<span class="sibyl-s" title="Built on Sibyl Memory">S</span></span>
       </a>
-      <nav class="verbs" aria-label="What Priors does">
-        <a href="#ask" title="asks the provider before creating a job">ASK</a>
-        <a href="#record" title="writes the prediction down before the outcome exists">RECORD</a>
-        <a href="#recall" title="187 decisions changed by what it recalled">RECALL</a>
-        <a href="#refuse" title="two mechanisms built, measured and switched off">REFUSE</a>
+      <nav class="sitenav" aria-label="Sections">
+        <a href="#test">Deletion test</a>
+        <a href="#try">Try it</a>
+        <a href="#ask">The problem</a>
+        <a href="#rebuild">The journal</a>
+        <a href="#check">Reproduce</a>
       </nav>
+      <a class="repo-btn" href="https://github.com/bzdmin/priors-acp">View repo</a>
     </div>
 
     <div class="hero">
@@ -868,6 +887,34 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
     </div>
 
     <p class="sub">The 18,360-job replay is the part that runs with no hand on it. Everything involving Digest is a controlled demonstration.</p>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="label" id="reuse">Take the parts</div>
+    <h2>Use it in your own agent</h2>
+    <p class="sub">Priors is an agent, not a package, and there is nothing to install. Three pieces are self-contained enough to lift.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="k">The gate</div>
+        <h3><span class="mono">priors/coordination.py</span></h3>
+        <p>205 lines, no dependencies beyond the standard library. Ask a counterparty whether it can take the work, weigh the answer against its record, decay the evidence. It knows nothing about ACP and takes a list of observations.</p>
+      </div>
+      <div class="card">
+        <div class="k">The write split</div>
+        <h3><span class="mono">priors/memory.py</span></h3>
+        <p>Three handles over one store, so the party being scored cannot write the score. The counterparty's handle has one method. If you take one idea from this repo, take this one.</p>
+      </div>
+      <div class="card">
+        <div class="k">The chain reader</div>
+        <h3><span class="mono">priors/chain.py</span></h3>
+        <p>ACP events off Base with <span class="mono">eth_getLogs</span> and no web3 dependency. Reorg-safe at 30 confirmations, discovers each endpoint's span limit, survives the user-agent filtering.</p>
+      </div>
+    </div>
+
+    <p class="sub">All MIT. What is not reusable is the predictor: its rules were mined from this marketplace and mean nothing anywhere else.</p>
   </div>
 </section>
 
