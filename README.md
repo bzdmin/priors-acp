@@ -53,7 +53,7 @@ without asking anyone for anything.
 
 ## The memory-check
 
-Two commands, one binary, nothing disabled.
+Two commands, the same code, nothing disabled.
 
 ```bash
 python scripts/fresh_session.py            # memory intact
@@ -641,7 +641,7 @@ provider record supplies the counts the baseline shrinks.
 **How you can tell it is memory rather than recomputation.** The journal is
 ordered by write time, and the decision for a job is written before its episode
 exists, visible in the `show_memory.py` output above, 214 blocks apart.
-Deleting the store changes 187 decisions while the binary stays the same.
+Deleting the store changes 187 decisions while the code stays the same.
 
 ---
 
