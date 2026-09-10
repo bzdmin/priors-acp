@@ -832,6 +832,16 @@ involving Digest is a controlled demonstration.
 | `docs/design.md` | what that page is for, decided before it was built |
 | `data/acp_scan_state_v2.json.gz` | the 6,319,153 block ACP scan, gzipped |
 
+Three of these stand alone if you want them. `priors/coordination.py` is 205
+lines and imports nothing outside the standard library: it takes a list of
+observations and decides whether a counterparty is worth asking again, and knows
+nothing about ACP. `priors/memory.py` holds the three-handle split, which is the
+idea worth taking. `priors/chain.py` reads ACP events off Base with
+`eth_getLogs` and no web3 dependency.
+
+`priors/predict.py` is not reusable. Its rules were mined from this marketplace
+and mean nothing anywhere else.
+
 ## License
 
 MIT

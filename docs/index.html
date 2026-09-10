@@ -854,34 +854,6 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
   </div>
 </section>
 
-<section class="alt">
-  <div class="wrap">
-    <div class="label" id="reuse">Reusable</div>
-    <h2>Three files worth stealing</h2>
-    <p class="sub">Priors is an agent, not a package, and there is nothing to install. Three pieces are self-contained enough to lift.</p>
-
-    <div class="cards">
-      <div class="card">
-        <div class="k">The gate</div>
-        <h3><span class="mono">priors/coordination.py</span></h3>
-        <p>205 lines, no dependencies beyond the standard library. Ask a counterparty whether it can take the work, weigh the answer against its record, decay the evidence. It knows nothing about ACP and takes a list of observations.</p>
-      </div>
-      <div class="card">
-        <div class="k">The write split</div>
-        <h3><span class="mono">priors/memory.py</span></h3>
-        <p>Three handles over one store, so the party being scored cannot write the score. The counterparty's handle has one method. If you take one idea from this repo, take this one.</p>
-      </div>
-      <div class="card">
-        <div class="k">The chain reader</div>
-        <h3><span class="mono">priors/chain.py</span></h3>
-        <p>ACP events off Base with <span class="mono">eth_getLogs</span> and no web3 dependency. Reorg-safe at 30 confirmations, discovers each endpoint's span limit, survives the user-agent filtering.</p>
-      </div>
-    </div>
-
-    <p class="sub">All MIT. What is not reusable is the predictor: its rules were mined from this marketplace and mean nothing anywhere else.</p>
-  </div>
-</section>
-
 <section>
   <div class="wrap">
     <div class="label" id="real">Claims</div>
