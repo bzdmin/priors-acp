@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="An ACP buyer agent that predicts whether a job will complete before it hires. Delete its memory and it demonstrably behaves differently.">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='2' fill='%23ffb020'/%3E%3Ctext x='16' y='23.5' text-anchor='middle' font-family='ui-monospace,SFMono-Regular,Consolas,monospace' font-size='19' font-weight='800' fill='%2307090d'%3EP:%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='2' fill='%23ffb020'/%3E%3Ctext x='16' y='23.5' text-anchor='middle' font-family='ui-monospace,SFMono-Regular,Consolas,monospace' font-size='19' font-weight='800' fill='%2307090d'%3EP:%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='2' fill='%23ffb020'/%3E%3Ctext x='16' y='23.5' text-anchor='middle' font-family='ui-monospace,SFMono-Regular,Consolas,monospace' font-size='19' font-weight='800' fill='%23100e0a'%3EP:%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='2' fill='%23ffb020'/%3E%3Ctext x='16' y='23.5' text-anchor='middle' font-family='ui-monospace,SFMono-Regular,Consolas,monospace' font-size='19' font-weight='800' fill='%23100e0a'%3EP:%3C/text%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Priors">
 <meta property="og:description" content="An ACP buyer agent that predicts whether a job will complete before it hires. Delete its memory and it demonstrably behaves differently.">
@@ -17,42 +17,45 @@
 <title>Priors</title>
 <style>
   :root {
-    --ink:      #ffffff;
-    --raise:    #f7f9fb;
-    --paper:    #0d1117;
-    --muted:    #5a6675;
-    --line:     #dfe5ec;
-    --amber:    #a35f00;
-    --red:      #b81f2d;
-    --red-bg:   #fff4f5;
-    --green:    #067051;
-    --green-bg: #edfaf5;
+    --ink:      #fbfaf7;
+    --alt:      #f4f1ea;
+    --raise:    #ffffff;
+    --paper:    #17150f;
+    --muted:    #6b6355;
+    --line:     #e2ddd0;
+    --amber:    #9a5b00;
+    --red:      #b31f26;
+    --red-bg:   #fdf3f1;
+    --green:    #0a6a4a;
+    --green-bg: #eef8f2;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ink:      #07090d;
-      --raise:    #0e131b;
-      --paper:    #f2f5f8;
-      --muted:    #7d8b9c;
-      --line:     #1b2230;
+      --ink:      #100e0a;
+      --alt:      #17140e;
+      --raise:    #1b1710;
+      --paper:    #f6f2e9;
+      --muted:    #9a9080;
+      --line:     #2b2519;
       --amber:    #ffb020;
-      --red:      #ff4d5a;
-      --red-bg:   #150d12;
-      --green:    #2ee6a8;
-      --green-bg: #071612;
+      --red:      #ff5b52;
+      --red-bg:   #1c110c;
+      --green:    #37d9a0;
+      --green-bg: #0c1a14;
     }
   }
   :root[data-theme="dark"] {
-    --ink:      #07090d;
-    --raise:    #0e131b;
-    --paper:    #f2f5f8;
-    --muted:    #7d8b9c;
-    --line:     #1b2230;
+    --ink:    #100e0a;
+    --alt:    #17140e;
+    --raise:    #1b1710;
+    --paper:    #f6f2e9;
+    --muted:    #9a9080;
+    --line:     #2b2519;
     --amber:    #ffb020;
-    --red:      #ff4d5a;
-    --red-bg:   #150d12;
-    --green:    #2ee6a8;
-    --green-bg: #071612;
+    --red:    #ff5b52;
+    --red-bg:   #1c110c;
+    --green:    #37d9a0;
+    --green-bg: #0c1a14;
   }
 
   * { box-sizing: border-box; }
@@ -77,6 +80,8 @@
   }
 
   section { padding: 88px 0; border-top: 1px solid var(--line); }
+  section.alt { background: var(--alt); border-top-color: transparent; }
+  .glyph { border-radius: 2px; }
 
   h2 {
     font-size: clamp(23px, 3vw, 33px); font-weight: 700;
@@ -237,6 +242,19 @@
   .obs.broken { border-left: 3px solid var(--red); }
   .obs.gone   { opacity: .32; }
 
+  .lockup { margin-top: 4px; }
+  .lockup-row {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .lockup-row a {
+    font-family: ui-monospace, Consolas, monospace; font-size: 14px;
+    letter-spacing: 0.04em; text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .lockup-row a:hover { border-bottom-color: var(--amber); }
+  .dot { width: 3px; height: 3px; background: var(--muted); border-radius: 50%; }
+
   footer { padding: 62px 0 84px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
 </style>
 </head>
@@ -300,7 +318,7 @@
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap">
     <div class="label" id="try">Run it yourself</div>
     <h2>Delete the memory and watch the decision change.</h2>
@@ -399,7 +417,7 @@
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap">
     <div class="label" id="ask">Why the gate exists</div>
     <div class="bignum">
@@ -440,7 +458,7 @@
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap">
     <div class="label" id="record">How it works</div>
     <h2>Three stages, and only one survives deletion.</h2>
@@ -518,7 +536,7 @@
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap">
     <div class="label" id="check">Check it yourself</div>
     <h2>Three ways, in order of how little you have to trust me.</h2>
@@ -585,7 +603,19 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
     <p class="mono" style="font-size: 12.5px; letter-spacing: 0.1em; margin-bottom: 14px;">
       FIGURES REGENERATED 2026-09-09 &nbsp;·&nbsp; DATASET BLOCKS 44,429,969 TO 50,749,122 &nbsp;·&nbsp; RELIABILITY QUOTED AT BLOCK 50,966,500
     </p>
-    <p style="margin: 0;">Built on Sibyl Memory and Virtuals Protocol ACP.</p>
+    <div class="lockup">
+      <span class="label">Built on</span>
+      <div class="lockup-row">
+        <a href="https://sibyllabs.org">Sibyl Memory</a>
+        <span class="dot"></span>
+        <a href="https://virtuals.io">Virtuals Protocol ACP</a>
+        <span class="dot"></span>
+        <a href="https://basescan.org/address/0x238e541bfefd82238730d00a2208e5497f1832e0">Base mainnet</a>
+      </div>
+    </div>
+    <p style="margin: 22px 0 0;">
+      <a href="https://github.com/bzdmin/priors-acp">github.com/bzdmin/priors-acp</a>
+    </p>
   </div>
 </footer>
 <script>
