@@ -18,13 +18,16 @@ decision. It does not prove that Priors hires better because of it.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from priors.chain import ChainSource  # noqa: E402
-from priors.coordination import (  # noqa: E402
+from priors.coordination import (  # noqa: F401
+    Observation,
+    ResponseRecord,  # noqa: E402
     NEUTRAL_RESPONSE_PRIOR,
     RESPONSE_BAR,
     apply_response_gate,
@@ -40,6 +43,9 @@ P_COMPLETE = 0.7947
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--provider", required=True)
+    ap.add_argument("--from-export", type=Path, default=None,
+                    help="replay the record from a JSON export instead of the "
+                         "local store, so the figures reproduce anywhere")
     ap.add_argument("--db", type=Path, default=DEFAULT_DB)
     ap.add_argument("--at-block", type=int, default=None,
                     help="evaluate the decay as of this block; default is the "
@@ -50,9 +56,26 @@ def main() -> None:
     provider = args.provider.lower()
     block = args.at_block if args.at_block is not None else ChainSource(0).head()
 
-    memory = PriorsMemory(args.db)
-    priors = PriorsWriter(memory)
-    record = priors.recall_response_record(provider)
+    if args.from_export:
+        # The store belongs to the agent and stays on its machine, but the
+        # record it holds does not have to. This is the same ResponseRecord
+        # rebuilt from an export, so every number below regenerates from a
+        # clean clone with no Sibyl store at all.
+        raw = json.loads(args.from_export.read_text())
+        record = ResponseRecord(
+            provider=raw["provider"],
+            declared=raw["declared"],
+            observations=tuple(
+                Observation(block=o["block"], confirmed=o["confirmed"])
+                for o in raw["observations"]
+            ),
+        )
+        if args.at_block is None:
+            block = raw["generated_at_block"]
+    else:
+        memory = PriorsMemory(args.db)
+        priors = PriorsWriter(memory)
+        record = priors.recall_response_record(provider)
 
     print("=" * 72)
     print("COORDINATION RESULT")

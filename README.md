@@ -543,12 +543,17 @@ since it holds a live wallet.
   ones it created and never funded, and the days on which it created none.
 - **Every figure here regenerates** from `scripts/dataset_stats.py`,
   `scripts/ablation.py` and `scripts/coordination_report.py`.
-- **The replay regenerates from a clean clone.** The scan is committed at
-  `data/acp_scan_state_v2.json.gz`, so `fresh_session.py` and `ablation.py`
-  run without asking anyone for anything. The live coordination figures are
-  the exception: they read a Sibyl store on the author's machine, and the jobs
-  behind them are on Base while the memory of them is local, which is what a
-  store the agent owns means.
+- **Everything regenerates from a clean clone, including the live record.**
+  The scan is committed at `data/acp_scan_state_v2.json.gz`, and the agent's
+  18 observations are exported to `docs/data/coordination.json`:
+
+  ```bash
+  python scripts/coordination_report.py     --provider 0x5043147b8b666ac070e01ff659e1fbbbc2462bc7     --from-export docs/data/coordination.json
+  ```
+
+  That returns 0.1698 at block 51,122,931 with no Sibyl store present. The
+  agent's own store stays on its machine, which is what a store the agent owns
+  means, but the record it holds does not have to.
 - **The claims are pinned by tests**, 58 of them, stdlib `unittest`, no
   fixtures and no network:
 
