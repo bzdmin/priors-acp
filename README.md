@@ -648,6 +648,38 @@ method exposes, reading all 36,724 events in ~1.4s. Lookups for one job use
 
 ---
 
+## The journal is the truth, the summary is a cache
+
+Priors stores two things. The COLD journal is append-only: one decision per
+funded job, one episode per resolved job, never edited. The WARM entities are a
+summary, rewritten in place whenever something changes.
+
+The journal is written first. If the process dies between the two writes, the
+record of what happened survives and the summary can be rebuilt. This checks
+that rather than claiming it:
+
+```bash
+python scripts/rebuild_from_journal.py
+```
+
+```
+  journal events read     : 36,724 in 0.4s
+  decisions               : 18,367
+  episodes                : 18,357
+
+                            from the journal     published
+  accuracy                            0.9036        0.9035   match
+  Brier                               0.0665        0.0666   match
+  decisions                           18,367        18,367   match
+```
+
+Recomputed from the journal alone, reading no provider record, no rule and no
+calibration ledger. The two accuracy figures differ in the fourth decimal
+because the replay scores 18,360 resolved jobs and the journal holds 18,357
+episodes: three jobs resolved after the last write.
+
+---
+
 ## Where the memory lives in the code
 
 Every line of this is one function. Nothing about memory is spread across the
@@ -792,6 +824,7 @@ involving Digest is a controlled demonstration.
 | `scripts/coordination_report.py` | the coordination result, with its sample size |
 | `scripts/ablation.py` | four-way A/B/C/D |
 | `scripts/dataset_stats.py` | regenerates `docs/DATA.md` |
+| `scripts/rebuild_from_journal.py` | recompute the figures from the journal alone |
 | `buyer/` | Priors' buyer runtime: decide, then transact |
 | `digest/` | the provider agent Priors hires |
 | `tests/` | 58 tests pinning the published claims |

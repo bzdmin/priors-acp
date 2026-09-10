@@ -519,7 +519,7 @@
 <section style="border-top: none;">
   <div class="wrap">
     <div class="label" id="test">The deletion test</div>
-    <h2>Same code, same provider, same claim, different memory.</h2>
+    <h2>Delete the memory, get a different answer</h2>
     <p class="sub">A provider declared itself available 24 times while it delivered twice and went silent sixteen times. Priors was asked to hire it twice, with memory and without memory.</p>
 
     <div class="split">
@@ -549,7 +549,7 @@
 <section class="alt">
   <div class="wrap">
     <div class="label" id="try">Live</div>
-    <h2>Delete the memory and the decision changes.</h2>
+    <h2>Try it</h2>
     <p class="sub">Eighteen observations of one provider, every one of them a job on Base.</p>
 
     <p class="instruct">Both columns run the same code, on the same request, against the same provider. The only difference is whether the agent can remember the last eighteen times it dealt with them.</p>
@@ -616,7 +616,7 @@
 <section>
   <div class="wrap">
     <div class="label">Verify it yourself</div>
-    <h2>Twenty-one jobs on Base mainnet</h2>
+    <h2>Twenty-one real jobs</h2>
     <p class="sub">Every failure was injected deliberately and deterministically. Each row proves one named claim, and the row that matters most has no transaction at all.</p>
 
     <div class="scroll">
@@ -670,7 +670,7 @@
       <div class="n">40,161</div>
       <div class="of">of 75,340 ACP jobs never get a provider response at all</div>
     </div>
-    <h2>The marketplace's largest failure is silence, not bad work</h2>
+    <h2>Most jobs die in silence</h2>
     <p>Of 75,340 jobs created only 18,367 were funded, and of the 56,973 that died, <strong>40,161 drew no provider response at all</strong> while 16,812 got an answer but never reached funding.</p>
     <p>Predicting whether a job completes does nothing about that, so Priors asks first and weighs the answer against its record of the same provider's earlier ones.</p>
     <p class="sub">Response means one specific thing here: a <span class="mono">BudgetSet</span> event, which is the first move a provider makes on a job, before any money is escrowed. The event records the job but not who set the budget, so these are counted as responses and Priors does not claim the provider ignored anyone.</p>
@@ -680,7 +680,7 @@
 <section>
   <div class="wrap">
     <div class="label" id="recall">At scale</div>
-    <h2>187 decisions changed across 18,360 resolved jobs</h2>
+    <h2>What memory changed</h2>
     <p class="sub">Both runs are the same code, and the deleted run is never handicapped.</p>
 
     <div class="scroll">
@@ -708,7 +708,7 @@
 <section class="alt">
   <div class="wrap">
     <div class="label" id="record">How it works</div>
-    <h2>Three stages, of which only one survives deletion</h2>
+    <h2>Three stages, one survives</h2>
 
 <pre>chain evidence        this provider completed 110 of 168 funded jobs
       |               shrunk toward the 0.7947 market base rate
@@ -761,7 +761,7 @@
 <section>
   <div class="wrap">
     <div class="label" id="refuse">What Priors refuses to do</div>
-    <h2>Two mechanisms were built, measured and switched off</h2>
+    <h2>Two things we switched off</h2>
     <p class="sub">Both were wrong on the evidence, so neither is allowed to act, and they are not dead code either because both still run inside <span class="mono">scripts/ablation.py</span>, which measures the predictor with each of them switched on, which is what makes a negative result checkable instead of asserted.</p>
 
     <div class="cards">
@@ -781,6 +781,27 @@
         <p>187 decisions changed, 126 of them right, across 13 providers. Priors changes its behaviour only when its own evidence earns that right.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label" id="rebuild">The journal is the truth</div>
+    <h2>Delete the summary, it comes back</h2>
+    <p class="sub">Priors stores two things. The journal is append-only: one decision per funded job, one episode per resolved job, never edited. The provider records and rules are a summary, rewritten in place every time something changes. The journal is written first, so if a process dies between the two the record survives and the summary can be rebuilt.</p>
+
+<pre>$ python scripts/rebuild_from_journal.py
+
+  journal events read     : 36,724 in 0.4s
+  decisions               : 18,367
+  episodes                : 18,357
+
+                            from the journal     published
+  accuracy                            0.9036        0.9035   match
+  Brier                               0.0665        0.0666   match
+  decisions                           18,367        18,367   match</pre>
+
+    <p>Those figures were recomputed from the journal alone. No provider record was read, no rule, no calibration ledger. The summary can be destroyed and nothing published here is lost.</p>
   </div>
 </section>
 
@@ -825,7 +846,7 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
 <section>
   <div class="wrap">
     <div class="label" id="real">Claims</div>
-    <h2>Eleven claims, and which of them hold</h2>
+    <h2>What holds and what does not</h2>
 
     <div class="scroll">
       <table>
