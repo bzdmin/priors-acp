@@ -834,6 +834,42 @@ involving Digest is a controlled demonstration.
 
 ---
 
+## Prior Work
+
+Priors was built for the Sibyl Labs Memory Hackathon inside the September 1 to
+10, 2026 window. The first functional code in this repository is commit
+`30f0db0` on September 5. Everything before it is a licence, an ignore file, a
+two-line README and an architecture note.
+
+The ACP scan behind `docs/DATA.md` predates the window and is declared here as
+input data rather than implementation. `data/acp_scan_state_v2.json.gz` holds
+224,050 decoded log entries from Base, and the scanner that produced them is not
+part of this repository and is not submitted.
+
+Everything that makes a decision was written during the window: the prediction
+model, the Sibyl integration, the rule lifecycle, the replay harness, the live
+tail, the coordination layer and the tests. No pre-existing implementation was
+reused as the core of this project.
+
+---
+
+## How memory made this possible
+
+Without a durable store, Priors is a function of the public chain record, and
+the public chain record is the thing this project measured and found wanting:
+of 14,644 completed jobs, a genuine third-party evaluator appears 18 times.
+
+Memory is what lets a prediction be written before its outcome exists and read
+back after, by a different process, in a different session. That ordering is
+what turns a claim into evidence, and it is only possible because the journal is
+append-only and survives the process that wrote it.
+
+Delete the store and Priors still runs. It just makes 187 different decisions,
+and it stops being able to tell a provider that has broken sixteen promises from
+one it has never met.
+
+---
+
 ## Layout
 
 | Path | |
