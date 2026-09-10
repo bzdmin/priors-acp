@@ -149,16 +149,26 @@
 
   .stats { border-top: 1px solid var(--line); background: var(--alt); }
   .stats-row {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1px; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0 34px; padding: 0;
   }
-  .stat { padding: 26px 4px 26px 0; }
+  .stat {
+    padding: 40px 0 42px; position: relative;
+  }
+  .stat + .stat::before {
+    content: ""; position: absolute; left: -17px; top: 44px; bottom: 46px;
+    width: 1px; background: var(--line);
+  }
+  @media (max-width: 640px) { .stat + .stat::before { display: none; } }
   .stat b {
     display: block; font-family: ui-monospace, Consolas, monospace;
-    font-size: clamp(26px, 3.4vw, 38px); font-weight: 800;
-    letter-spacing: -0.03em; color: var(--amber);
+    font-size: clamp(38px, 5.2vw, 62px); font-weight: 800;
+    letter-spacing: -0.045em; line-height: 0.95; color: var(--amber);
   }
-  .stat span { font-size: 14px; color: var(--muted); }
+  .stat span {
+    display: block; font-size: 13.5px; line-height: 1.35; color: var(--muted);
+    margin-top: 12px; max-width: 15ch;
+  }
 
   .badges { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 36px; }
   .badge {
