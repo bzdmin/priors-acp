@@ -616,7 +616,7 @@
     <h2>The marketplace's largest failure is silence, not bad work</h2>
     <p>Of 75,340 jobs created only 18,367 were funded, and of the 56,973 that died, <strong>40,161 drew no provider response at all</strong> while 16,812 got an answer but never reached funding.</p>
     <p>Predicting whether a job completes does nothing about that, so Priors asks first and weighs the answer against its record of the same provider's earlier ones.</p>
-    <p class="sub">A provider response here means a <span class="mono">BudgetSet</span> event, the provider-side response step in the ACP SDK. The event carries no setter address, so this is a response rate and is not presented as an acceptance or silence rate.</p>
+    <p class="sub">Response means one specific thing here: a <span class="mono">BudgetSet</span> event, which is the first move a provider makes on a job, before any money is escrowed. The event records the job but not who set the budget, so these are counted as responses and Priors does not claim the provider ignored anyone.</p>
   </div>
 </section>
 

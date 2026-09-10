@@ -306,9 +306,9 @@ the marketplace's largest failure untouched. Of 75,340 created jobs, only
 35,179 ever reached a `BudgetSet` event and only 18,367 were ever funded, so
 **53.31% of created jobs never reach a provider response at all.**
 
-`BudgetSet` is the provider-side response step in the ACP SDK. The event
-carries no setter address, so these figures are a response rate and are not
-presented as a provider acceptance or silence rate.
+`BudgetSet` is the first move a provider makes on a job, before any money is
+escrowed. The event records the job but not who set the budget, so these are
+counted as responses and no claim is made that a provider ignored anyone.
 
 Priors therefore asks first, and weighs the answer by what it remembers:
 
