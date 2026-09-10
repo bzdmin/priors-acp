@@ -1,0 +1,481 @@
+<title>Priors</title>
+<style>
+  :root {
+    --ink:      #ffffff;
+    --raise:    #f7f9fb;
+    --paper:    #0d1117;
+    --muted:    #5a6675;
+    --line:     #dfe5ec;
+    --amber:    #a35f00;
+    --red:      #b81f2d;
+    --red-bg:   #fff4f5;
+    --green:    #067051;
+    --green-bg: #edfaf5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink:      #07090d;
+      --raise:    #0e131b;
+      --paper:    #f2f5f8;
+      --muted:    #7d8b9c;
+      --line:     #1b2230;
+      --amber:    #ffb020;
+      --red:      #ff4d5a;
+      --red-bg:   #150d12;
+      --green:    #2ee6a8;
+      --green-bg: #071612;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink:      #07090d;
+    --raise:    #0e131b;
+    --paper:    #f2f5f8;
+    --muted:    #7d8b9c;
+    --line:     #1b2230;
+    --amber:    #ffb020;
+    --red:      #ff4d5a;
+    --red-bg:   #150d12;
+    --green:    #2ee6a8;
+    --green-bg: #071612;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.55;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 26px; }
+  .mono { font-family: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace; }
+
+  .label {
+    font-family: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.17em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  section { padding: 88px 0; border-top: 1px solid var(--line); }
+
+  h2 {
+    font-size: clamp(23px, 3vw, 33px); font-weight: 700;
+    letter-spacing: -0.015em; margin: 14px 0 12px; line-height: 1.2;
+  }
+  p { font-size: clamp(16px, 1.6vw, 18.5px); margin: 0 0 18px; }
+  p.sub { color: var(--muted); }
+  a { color: var(--amber); text-underline-offset: 3px; }
+
+  header { padding: 44px 0 0; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .mark { display: flex; align-items: center; gap: 13px; }
+  .glyph {
+    width: 38px; height: 38px; background: var(--amber); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, Consolas, monospace; font-size: 22px; font-weight: 800; flex: none;
+  }
+  .wordmark { font-size: 25px; font-weight: 800; }
+  .verbs { display: flex; gap: 22px; }
+  .verbs span {
+    font-family: ui-monospace, Consolas, monospace; font-size: 13px;
+    letter-spacing: 0.2em; color: var(--amber);
+  }
+
+  .hero { padding: 66px 0 78px; }
+  .hero h1 {
+    font-size: clamp(31px, 4.6vw, 51px); font-weight: 800;
+    letter-spacing: -0.028em; line-height: 1.12; margin: 0 0 24px; max-width: 19ch;
+  }
+  .hero h1 em { font-style: normal; color: var(--amber); }
+  .hero p { font-size: clamp(17px, 2vw, 21px); color: var(--muted); max-width: 64ch; margin: 0; }
+
+  .badges { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 36px; }
+  .badge {
+    font-family: ui-monospace, Consolas, monospace; font-size: 12.5px;
+    letter-spacing: 0.08em; color: var(--muted);
+    border: 1px solid var(--line); padding: 8px 13px;
+  }
+  .badge.hot { color: var(--amber); border-color: var(--amber); }
+
+  .split {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    background: var(--line); border: 1px solid var(--line); margin: 32px 0 0;
+  }
+  @media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+  .pane { padding: 32px 30px; display: flex; flex-direction: column; gap: 14px; }
+  .pane.intact  { background: var(--red-bg); }
+  .pane.deleted { background: var(--green-bg); }
+  .label.is-intact  { color: var(--red); }
+  .label.is-deleted { color: var(--green); }
+  .pane .said { font-size: 16.5px; color: var(--muted); margin: 0; }
+  .figure {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: clamp(38px, 5.4vw, 52px); font-weight: 800; line-height: 1;
+  }
+  .figure.intact  { color: var(--red); }
+  .figure.deleted { color: var(--green); }
+  .verdict { font-family: ui-monospace, Consolas, monospace; font-size: clamp(17px, 2.2vw, 22px); font-weight: 800; }
+  .verdict.intact  { color: var(--red); }
+  .verdict.deleted { color: var(--green); }
+  .same {
+    text-align: center; padding: 20px; border: 1px solid var(--line); border-top: none;
+    font-family: ui-monospace, Consolas, monospace; font-size: 14.5px;
+    letter-spacing: 0.05em; color: var(--muted);
+  }
+
+  .bignum { display: flex; align-items: center; gap: 38px; flex-wrap: wrap; margin-bottom: 10px; }
+  .bignum .n {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: clamp(54px, 9vw, 118px); font-weight: 800;
+    letter-spacing: -0.045em; line-height: 0.86; color: var(--amber);
+  }
+  .bignum .of { font-size: clamp(18px, 2.4vw, 27px); color: var(--muted); max-width: 20ch; line-height: 1.28; }
+
+  .scroll { overflow-x: auto; margin: 28px 0; }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 15px; }
+  th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+  th {
+    font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); font-weight: 700;
+  }
+  td.num { font-family: ui-monospace, Consolas, monospace; }
+  td.kept   { color: var(--green); font-weight: 600; }
+  td.broken { color: var(--red);   font-weight: 600; }
+
+  pre {
+    background: var(--raise); border: 1px solid var(--line);
+    padding: 22px; overflow-x: auto; font-size: 13.5px; line-height: 1.7;
+    font-family: ui-monospace, Consolas, monospace; margin: 26px 0; color: var(--paper);
+  }
+
+  .cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 3px; background: var(--line); border: 1px solid var(--line); margin: 30px 0;
+  }
+  .card { background: var(--ink); padding: 26px; }
+  .card h3 { font-size: 16.5px; margin: 11px 0 9px; font-weight: 700; }
+  .card p { font-size: 15px; color: var(--muted); margin: 0; }
+  .card .k {
+    font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+    letter-spacing: 0.13em; color: var(--amber); text-transform: uppercase; font-weight: 700;
+  }
+
+  .note { border-left: 3px solid var(--amber); padding: 3px 0 3px 20px; margin: 28px 0; }
+  .note p { margin: 0 0 10px; }
+  .note p:last-child { margin: 0; }
+
+  footer { padding: 62px 0 84px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <div class="mark">
+        <div class="glyph">P:</div>
+        <div class="wordmark">PRIORS</div>
+      </div>
+      <div class="verbs">
+        <span>ASK</span><span>RECORD</span><span>RECALL</span><span>REFUSE</span>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h1>An agent that <em>predicts before it hires</em>, and remembers when it was wrong.</h1>
+      <p>Priors is a buyer agent on Virtuals Protocol ACP. Before hiring anyone it writes down what it expects to happen, then reads back what actually did. What it learns lives in Sibyl Memory. Delete that memory and it demonstrably behaves differently.</p>
+      <div class="badges">
+        <span class="badge">LIVE ON BASE MAINNET</span>
+        <span class="badge">18,360 JOBS REPLAYED</span>
+        <span class="badge hot">187 DECISIONS CHANGED BY MEMORY</span>
+        <span class="badge">REGISTERED ON VIRTUALS ACP</span>
+        <span class="badge">58 TESTS GREEN</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section style="border-top: none;">
+  <div class="wrap">
+    <div class="label">The deletion test</div>
+    <h2>Same code. Same provider. Same claim. Different memory.</h2>
+    <p class="sub">A provider declared itself available 24 times across two sessions. Twice it delivered. Sixteen times it went silent and let the job expire. Priors was then asked to hire it once more, twice over: with its memory intact, and with that memory deleted and nothing else changed.</p>
+
+    <div class="split">
+      <div class="pane intact">
+        <div class="label is-intact">Memory intact</div>
+        <p class="said">Priors remembers this counterparty claiming availability 24 times and letting 16 of those jobs die unanswered.</p>
+        <div class="figure intact">0.1666</div>
+        <div class="label">will it respond at all &nbsp;·&nbsp; bar 0.4669</div>
+        <div class="verdict intact">NO JOB CREATED</div>
+      </div>
+      <div class="pane deleted">
+        <div class="label is-deleted">Memory deleted</div>
+        <p class="said">Identical binary, identical provider, identical declaration. No record that any of it ever happened.</p>
+        <div class="figure deleted">0.4669</div>
+        <div class="label">will it respond at all &nbsp;·&nbsp; bar 0.4669</div>
+        <div class="verdict deleted">JOB CREATED</div>
+      </div>
+    </div>
+    <div class="same">Rules-v2 returned 0.7947 on both runs. Only the memory differed.</div>
+
+    <div class="note">
+      <p><strong>Why the bar is not a tuned constant.</strong> The bar is 0.4669, which is the marketplace response rate itself: 35,179 of 75,340 created jobs ever reached a provider response. A counterparty Priors has never met sits exactly on the bar and passes, because an unknown agent is treated as typical rather than suspect. That is why the deleted run passes by construction rather than by a number chosen to make it pass.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Verify it yourself</div>
+    <h2>Twenty-one jobs, on Base mainnet.</h2>
+    <p class="sub">Every failure was injected deliberately and deterministically, so it was made to happen rather than waited for. Each row proves one named claim, and the row that matters most has no transaction at all.</p>
+
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Claim</th><th>Evidence</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A counterparty can declare availability and keep it</td>
+            <td class="kept">jobs 76935, 76945, 77933 responded, funded, completed</td>
+          </tr>
+          <tr>
+            <td>It can declare availability and break it</td>
+            <td class="num"><a href="https://basescan.org/tx/0x29f6a63676adb2ef74d839ecbd475bb74923b52ad3e8c7b3b689b03d8b73d0d7">0x29f6a636…</a> job 76936, created, never answered</td>
+          </tr>
+          <tr>
+            <td>It is a pattern, not one bad day</td>
+            <td class="broken">16 broken declarations: 76936, 76941, 77934, 77939, 77940, 77942, 78034, 78035, 78040, 78041, 78042, 78046, 78047, 78051, 78053, 78054</td>
+          </tr>
+          <tr>
+            <td><strong>Memory then blocked a job Rules-v2 approved</strong></td>
+            <td><strong>no transaction exists, and that is the evidence</strong></td>
+          </tr>
+          <tr>
+            <td>The same code with memory deleted proceeded</td>
+            <td class="num"><a href="https://basescan.org/tx/0x0109d88db3fc523d4b14b80036a4c14f71aa5372f629b8b0acf771947db08228">0x0109d88d…</a> job 76945, created, funded, completed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Reliability moved only as evidence arrived: <span class="mono">0.4669 &rarr; 0.5556 &rarr; 0.4757 &rarr; 0.4160 &rarr; 0.1666</span> across 18 observations. It crossed the bar on the third, not the first, because one broken promise against one kept promise is not yet evidence.</p>
+
+    <div class="note">
+      <p><strong>There is no transaction for the refused job, and that is the result.</strong> Running with memory intact, Priors refused to create the job at all. Nothing was signed and nothing was spent, so on chain there is simply no job where that one would have been. The absence is the evidence.</p>
+    </div>
+
+    <p class="sub">Total spend across every live job: 0.03 USDC. A job nobody answers is never funded, so sixteen broken promises cost sponsored gas and nothing else. Evidence decays by half a day, so this figure is quoted at block 51,120,396 and climbs back toward the bar as it ages: 0.2170 on Sep 11, 0.2860 on Sep 12, expiring Sep 15.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Why the gate exists</div>
+    <div class="bignum">
+      <div class="n">40,161</div>
+      <div class="of">of 75,340 ACP jobs never get a provider response at all</div>
+    </div>
+    <h2>The marketplace's largest failure is silence, not bad work.</h2>
+    <p>Across every ACP job on Base from block 44,429,969 to 50,749,122, 75,340 jobs were created and only 18,367 were ever funded. Of the 56,973 that died, <strong>40,161 never drew a provider response of any kind</strong>, not rejected, just never answered. The other 16,812 got an answer but never reached funding.</p>
+    <p>Predicting whether a job will complete does nothing about that. So Priors asks the provider whether it can actually take the work, then weighs that answer against its own record of whether the same provider's earlier answers held up.</p>
+    <p class="sub">A provider response here means a <span class="mono">BudgetSet</span> event, the provider-side response step in the ACP SDK. The event carries no setter address, so this is a response rate and is not presented as an acceptance or silence rate.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">At scale</div>
+    <h2>187 decisions changed across 18,360 resolved jobs.</h2>
+    <p class="sub">The live jobs show that the decision depends on memory. This shows what memory is worth over the whole history. Both runs are the same binary, and the deleted run is never handicapped to flatter the other.</p>
+
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Run</th><th>Accuracy</th><th>Brier</th><th>Decisions changed</th><th>Of those, right</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>memory intact</td><td class="num">0.9035</td><td class="num">0.0666</td><td class="num">187</td><td class="num">126 &nbsp; (67.4%)</td></tr>
+          <tr><td>memory deleted</td><td class="num">0.9000</td><td class="num">0.0721</td><td class="num">0</td><td class="num">n/a</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>126 right, 61 wrong. Nearly all of them share one shape: memory overruling a hire that the public chain record endorsed, on a job that then failed.</p>
+
+    <div class="note">
+      <p><strong>The aggregate movement is small, and pretending otherwise would be dishonest.</strong> Accuracy moves from 0.9000 to 0.9035. The reason is that chain evidence alone is already strong: per-provider completion rates with no memory at all reach 90%. Most of those 18,360 jobs are easy calls that drown out the hard ones in any average.</p>
+      <p>The defensible claim is the reversal count, not the average. 187 of 18,360 is 1% of decisions, and a judge is entitled to weigh it accordingly.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">How it works</div>
+    <h2>Three stages, and only one survives deletion.</h2>
+
+<pre>chain evidence        this provider completed 110 of 168 funded jobs
+      |               shrunk toward the 0.7947 market base rate
+      v               SURVIVES DELETION
+   0.6626
+      |
+      +-> rules Priors wrote from its own errors    ACTS ON THE DECISION
+      |   R-36, R-37, R-38          -> 0.0100       DELETED WITH MEMORY
+      |
+      +-> calibration of its own confidence         REPORTED, NEVER APPLIED
+      v
+  DO NOT HIRE                       actual outcome: FAILED</pre>
+
+    <div class="cards">
+      <div class="card">
+        <div class="k">Stage 1</div>
+        <h3>Chain evidence</h3>
+        <p>Per-provider completion rates, shrunk toward the market base rate so a provider with 3 jobs is not read like one with 300. Public data. Works with memory deleted.</p>
+      </div>
+      <div class="card">
+        <div class="k">Stage 2</div>
+        <h3>Rules from its own errors</h3>
+        <p>Mined from Priors' own resolved mistakes. The lifecycle runs pattern, provisional, then graduated or demoted. Each rule applies only to jobs funded after the evidence that formed it.</p>
+      </div>
+      <div class="card">
+        <div class="k">Stage 3</div>
+        <h3>Calibration</h3>
+        <p>Priors' record of how its own confidence has held up. Measured, kept, and deliberately not allowed to move the decision.</p>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Rule lifecycle over the full replay</th><th>Count</th></tr></thead>
+        <tbody>
+          <tr><td>rules created</td><td class="num">156</td></tr>
+          <tr><td>still provisional</td><td class="num">117</td></tr>
+          <tr><td>graduated to full weight</td><td class="num">16</td></tr>
+          <tr><td>demoted after failing in the field</td><td class="num">23</td></tr>
+          <tr><td>distinct providers with rules</td><td class="num">51</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sub">Nobody can write the record that judges their own claim. Priors writes decisions and requests, the resolver writes episodes and observations, and the counterparty can only declare. That separation is enforced by the API surface itself and pinned by tests.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">What Priors refuses to do</div>
+    <h2>Two mechanisms were built, measured, and switched off.</h2>
+    <p class="sub">Both would have made memory look more load-bearing. Both were wrong on the evidence, so neither is allowed to act. The code for both is still in the repo, defaulted off.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="k">Rejected</div>
+        <h3>Calibration as an input</h3>
+        <p>Applying it flipped 458 decisions and was right on 45% of them, worse than chance. It is a band-wide average applied to individual jobs, and with the hire bar at 0.5 a correct average nudge pushes fine jobs across the line. Kept as self-knowledge, kept out of the call.</p>
+      </div>
+      <div class="card">
+        <div class="k">Rejected</div>
+        <h3>A learned hire threshold</h3>
+        <p>Built under the same temporal separation as rules. Every bar above 0.5 scored worse against the real outcome distribution. A threshold is not a learnable fact but a policy choice needing a stated cost model, and inventing one that made the numbers work would be fitting to the replay.</p>
+      </div>
+      <div class="card">
+        <div class="k">Kept</div>
+        <h3>Rules</h3>
+        <p>187 decisions changed at 67.4%, across 13 providers. Priors changes its behaviour only when its own evidence earns that right.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Honest disclosures</div>
+    <h2>What this is not.</h2>
+
+    <div class="note">
+      <p><strong>This is a backtest, and is described as one.</strong> Every prediction was written before its outcome was read, and that ordering is structurally enforced rather than merely promised. But the historical runs were made in fast-forward against scanned data, not accumulated over months of live trading. The live jobs are the exception and are labelled as such.</p>
+    </div>
+    <div class="note">
+      <p><strong>Self-dealing.</strong> The provider in the live demonstration is Digest, an agent I also operate. Both sides are mine. It exists so the hiring path can be exercised end to end, and it is not counted as independent evidence of anything.</p>
+    </div>
+    <div class="note">
+      <p><strong>Prior work.</strong> The ACP scanner and the dataset behind these figures predate the hackathon. The prediction model, Sibyl integration, rule lifecycle, replay harness, live tail and coordination layer were built during it.</p>
+    </div>
+    <div class="note">
+      <p><strong>The live result is three observations against one counterparty,</strong> including a deliberately injected fault. It demonstrates that the decision depends on what was remembered. It is not a measurement of whether Priors hires better, and it is not comparable to the 18,360-job replay.</p>
+    </div>
+    <div class="note">
+      <p><strong>The condition vocabulary was chosen by a human who had already analysed this dataset.</strong> Individual rules are temporally clean, but that is a separate limitation from outcome leakage and it is worth stating plainly rather than pretending the feature set fell from the sky.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="mono" style="font-size: 12.5px; letter-spacing: 0.1em; margin-bottom: 14px;">
+      FIGURES REGENERATED 2026-09-09 &nbsp;·&nbsp; DATASET BLOCKS 44,429,969 TO 50,749,122 &nbsp;·&nbsp; RELIABILITY QUOTED AT BLOCK 50,966,500
+    </p>
+    <p style="margin: 0;">Built on Sibyl Memory and Virtuals Protocol ACP.</p>
+  </div>
+</footer>
+<script>
+/* Progressive enhancement only. Nothing here is required to read the page:
+   the reveal class is added by JS, so if this never runs everything is
+   already visible. Motion is skipped entirely when the reader asks for that. */
+(function () {
+  var reduced = window.matchMedia
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced || !("IntersectionObserver" in window)) return;
+
+  var css = document.createElement("style");
+  css.textContent =
+    ".rv{opacity:0;transform:translateY(14px);" +
+    "transition:opacity .55s ease,transform .55s ease}" +
+    ".rv.in{opacity:1;transform:none}";
+  document.head.appendChild(css);
+
+  var targets = document.querySelectorAll(
+    "section > .wrap > *, .hero > *, .pane, .card");
+  for (var i = 0; i < targets.length; i++) targets[i].classList.add("rv");
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("in");
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+  for (var j = 0; j < targets.length; j++) io.observe(targets[j]);
+
+  /* Count the headline figure up, from its own text so the number
+     never has to be repeated in two places. */
+  var n = document.querySelector(".bignum .n");
+  if (!n) return;
+  var finalText = n.textContent.trim();
+  var value = parseInt(finalText.replace(/[^0-9]/g, ""), 10);
+  if (!value) return;
+
+  var counted = false;
+  new IntersectionObserver(function (entries, obs) {
+    if (!entries[0].isIntersecting || counted) return;
+    counted = true;
+    obs.disconnect();
+    var start = null, dur = 1100;
+    function frame(t) {
+      if (start === null) start = t;
+      var k = Math.min((t - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - k, 3);
+      n.textContent = Math.round(value * eased).toLocaleString("en-US");
+      if (k < 1) requestAnimationFrame(frame);
+      else n.textContent = finalText;
+    }
+    requestAnimationFrame(frame);
+  }, { threshold: 0.4 }).observe(n);
+})();
+</script>
+
