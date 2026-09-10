@@ -343,6 +343,10 @@
     -webkit-mask: url(virtuals-mark.png) center/contain no-repeat;
             mask: url(virtuals-mark.png) center/contain no-repeat;
   }
+  .base-ico {
+    width: 1.05em; height: 1.05em; vertical-align: -0.2em; margin-right: 7px;
+    border-radius: 2px; display: inline-block;
+  }
   .dot { width: 3px; height: 3px; background: var(--muted); border-radius: 50%; }
 
   .totop {
@@ -396,7 +400,7 @@
   <div class="wrap">
     <div class="label">The deletion test</div>
     <h2>Same code, same provider, same claim, different memory.</h2>
-    <p class="sub">A provider declared itself available 24 times, delivered twice, and went silent sixteen times. Priors was then asked to hire it once more, twice over, with memory and without.</p>
+    <p class="sub">A provider declared itself available 24 times, delivered twice, and went silent sixteen times. Priors was asked to hire it twice, with memory and without memory.</p>
 
     <div class="split">
       <div class="pane intact">
@@ -689,8 +693,8 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
 
 <section>
   <div class="wrap">
-    <div class="label" id="real">What is real</div>
-    <h2>And what is not</h2>
+    <div class="label" id="real">The honesty table</div>
+    <h2>Twelve claims, and which of them hold</h2>
 
     <div class="scroll">
       <table>
@@ -728,7 +732,7 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
         <span class="dot"></span>
         <a href="https://virtuals.io"><span class="virtuals-ico"></span>Virtuals Protocol ACP</a>
         <span class="dot"></span>
-        <a href="https://basescan.org/address/0x238e541bfefd82238730d00a2208e5497f1832e0">Base mainnet</a>
+        <a href="https://basescan.org/address/0x238e541bfefd82238730d00a2208e5497f1832e0"><img class="base-ico" src="base-mark.png" alt="" width="128" height="128">Base mainnet</a>
       </div>
     </div>
     <p style="margin: 22px 0 0;"><a class="totop" href="#top">&uarr; Back to top</a></p>
@@ -766,30 +770,46 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
   }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
   for (var j = 0; j < targets.length; j++) io.observe(targets[j]);
 
-  /* Count the headline figure up, from its own text so the number
-     never has to be repeated in two places. */
+})();
+</script>
+
+<script>
+/* The headline figure counts up when it is scrolled to. It lives in its own
+   block rather than inside the reveal script, because that one returns early
+   for readers who ask for reduced motion and this would go with it. It also
+   waits for the fade to finish, or the count runs while the number is still
+   transparent and nobody sees it. */
+(function () {
   var n = document.querySelector(".bignum .n");
   if (!n) return;
+
   var finalText = n.textContent.trim();
   var value = parseInt(finalText.replace(/[^0-9]/g, ""), 10);
-  if (!value) return;
+  if (!value || !("IntersectionObserver" in window)) return;
 
-  var counted = false;
+  var reduced = window.matchMedia
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) return;                    // the number is already correct
+
+  var done = false;
   new IntersectionObserver(function (entries, obs) {
-    if (!entries[0].isIntersecting || counted) return;
-    counted = true;
+    if (!entries[0].isIntersecting || done) return;
+    done = true;
     obs.disconnect();
-    var start = null, dur = 1100;
-    function frame(t) {
-      if (start === null) start = t;
-      var k = Math.min((t - start) / dur, 1);
-      var eased = 1 - Math.pow(1 - k, 3);
-      n.textContent = Math.round(value * eased).toLocaleString("en-US");
-      if (k < 1) requestAnimationFrame(frame);
-      else n.textContent = finalText;
-    }
-    requestAnimationFrame(frame);
-  }, { threshold: 0.4 }).observe(n);
+    setTimeout(function () {
+      var start = null, dur = 1300;
+      function frame(t) {
+        if (start === null) start = t;
+        var k = Math.min((t - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - k, 3);
+        n.textContent = Math.round(value * eased).toLocaleString("en-US");
+        if (k < 1) requestAnimationFrame(frame);
+        else n.textContent = finalText;
+      }
+      n.textContent = "0";
+      requestAnimationFrame(frame);
+    }, 260);                              // let the reveal fade land first
+  }, { threshold: 0.25 }).observe(n);
 })();
 </script>
 
