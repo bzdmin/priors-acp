@@ -465,7 +465,7 @@
     <div class="same">Both runs scored 0.7947 on whether the job would complete, so the predictor never changed its mind. Only the memory differed.</div>
 
     <div class="note">
-      <p><strong>The bar is not a tuned constant because it is 0.4669, and 0.4669 is the marketplace itself.</strong> Only 35,179 of 75,340 created jobs ever drew a provider response, which gave us 0.4669.</p><p>A provider's reliability is that same rate, pulled toward whatever its own record shows:</p><p class="mono formula">reliability = (kept + 5 &times; 0.4669) &divide; (observed + 5)</p><p>The 5 is a handicap, so it takes five real observations before a record outweighs the marketplace rate and one broken promise is never a verdict. For a provider Priors has never met there is nothing to weigh:</p><p class="mono formula">(0 + 5 &times; 0.4669) &divide; (0 + 5) = 2.3345 &divide; 5 = 0.4669</p><p>Exactly the bar. A stranger passes, and the deleted run clears by construction and not by a number picked to let it through.</p>
+      <p><strong>The bar is not a tuned constant because it is 0.4669, and 0.4669 is the marketplace itself.</strong> Only 35,179 of 75,340 created jobs ever drew a provider response, which gave us 0.4669.</p><p>A <em>prior</em> is what you believe before you have any evidence, which is where the project gets its name. The marketplace prior is 0.4669: what to expect of a provider you know nothing about. A provider's reliability starts there and is pulled toward whatever its own record shows:</p><p class="mono formula">reliability = (kept + 5 &times; 0.4669) &divide; (observed + 5)</p><p>The 5 is a handicap, so it takes five real observations before a record outweighs the marketplace rate and one broken promise is never a verdict. For a provider Priors has never met there is nothing to weigh:</p><p class="mono formula">(0 + 5 &times; 0.4669) &divide; (0 + 5) = 2.3345 &divide; 5 = 0.4669</p><p>Exactly the bar. A stranger passes, and the deleted run clears by construction and not by a number picked to let it through.</p>
     </div>
   </div>
 </section>
@@ -722,7 +722,7 @@
       <div class="card">
         <div class="k">A clone and 30 seconds</div>
         <h3>Run the tests</h3>
-        <p>58 tests, standard library only, no fixtures and no network. Each pins a claim made on this page, including that the response bar <em>is</em> the marketplace prior rather than a constant near it, and that no writer can reach the record scoring its own claim.</p>
+        <p>58 tests, standard library only, no fixtures and no network. Each pins a claim made on this page, including that the response bar <em>is</em> the marketplace prior and that no writer can reach the record scoring its own claim.</p>
       </div>
       <div class="card">
         <div class="k">A clone and a few minutes</div>
@@ -741,7 +741,7 @@ python scripts/fresh_session.py --empty      <span style="color:var(--muted)"># 
 python scripts/ablation.py                   <span style="color:var(--muted)"># the four way A/B/C/D</span></pre>
 
     <div class="note">
-      <p><strong>All of it reproduces, including the live record.</strong> The 18 observations are exported to <span class="mono">docs/data/coordination.json</span> and <span class="mono">coordination_report.py --from-export</span> replays them, so the 0.1666 above regenerates on any machine. The agent's own store stays on its machine, which is what a store the agent owns means.</p>
+      <p><strong>All of it reproduces, including the live record.</strong> The 18 observations are exported to <span class="mono">docs/data/coordination.json</span> and <span class="mono">coordination_report.py --from-export</span> replays them, so the number in <a href="#try">the panel above</a> regenerates on any machine.</p>
     </div>
   </div>
 </section>
