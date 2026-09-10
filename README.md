@@ -648,6 +648,30 @@ method exposes, reading all 36,724 events in ~1.4s. Lookups for one job use
 
 ---
 
+## Where the memory lives in the code
+
+Every line of this is one function. Nothing about memory is spread across the
+codebase, which is what makes the write ownership enforceable.
+
+| What | File | Function |
+|---|---|---|
+| Everything a decision recalls | `priors/memory.py:321` | `PriorsWriter.recall_experience` |
+| The only other recall on the decision path | `priors/memory.py:326` | `PriorsWriter.recall_response_record` |
+| Writing a prediction, before any outcome exists | `priors/memory.py:394` | `PriorsWriter.write_decision` |
+| Writing what actually happened, by the resolver | `priors/memory.py:501` | `ResolverWriter.write_episode` |
+| Scoring a declaration against the chain | `priors/memory.py:570` | `ResolverWriter.record_response_observation` |
+| The counterparty's only method | `priors/memory.py:460` | `DeclarationWriter.declare` |
+| Reading the whole journal past the 10,000 clamp | `priors/memory.py:229` | `PriorsMemory.iter_journal` |
+| Rebuilding reliability from observations | `priors/coordination.py` | `ResponseRecord.reliability` |
+| The deletion test itself | `scripts/fresh_session.py:178` | `--empty` |
+| Proof a fresh process recalls, having learned nothing | `scripts/fresh_session.py:129` | `phase2_decide` |
+
+`recall_experience` and `recall_response_record` are the only two reads that
+feed a decision. Nothing else in the codebase reads Sibyl to decide anything, so
+"where does the learned experience come from" has exactly two answers.
+
+---
+
 ## Memory implementation note
 
 **What Priors persists.** Two kinds of thing, written by two processes that
