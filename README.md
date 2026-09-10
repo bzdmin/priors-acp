@@ -22,15 +22,32 @@ What cannot be farmed is what you watched happen yourself. Priors writes down
 what it expects before it hires, reads back what actually happened, and lets
 that private record override the public one.
 
-## Try it live
+## Verify it in 30 seconds
 
-| | |
-|---|---|
-| Evidence page | [bzdmin.github.io/priors-acp](https://bzdmin.github.io/priors-acp/) |
-| The deletion test | `python scripts/fresh_session.py`, then the same with `--empty` |
-| The live jobs | 21 of them against `0x238e541bfefd82238730d00a2208e5497f1832e0` on Base, listed below |
-| The tests | `python -m unittest discover -s tests -t .`, 58 of them, no data or network needed |
-| Everything, from a clean clone | `git clone`, `pip install sibyl-memory-client`, then `python scripts/fresh_session.py` and again with `--empty` |
+Open [bzdmin.github.io/priors-acp/#try](https://bzdmin.github.io/priors-acp/#try)
+and switch memory from INTACT to DELETED. Eighteen recorded observations drop to
+zero weight, the response probability returns to the marketplace prior, and the
+same request that was refused is created. Drag the clock forward and the evidence
+decays until it expires on day five.
+
+That panel runs the gate from `priors/coordination.py` in the browser over the
+agent's exported record. It agrees with the Python to ten decimal places at every
+point on the decay curve.
+
+To run the real thing, against the real store:
+
+```bash
+git clone https://github.com/bzdmin/priors-acp
+cd priors-acp
+pip install sibyl-memory-client
+
+python -m unittest discover -s tests -t .    # 58 tests, no data, no network
+python scripts/fresh_session.py              # memory intact
+python scripts/fresh_session.py --empty      # memory deleted
+```
+
+The 150 MB scan ships with the repo, gzipped to 15 MB, so both of those run
+without asking anyone for anything.
 
 ---
 
@@ -401,7 +418,7 @@ sixteen broken promises cost sponsored gas and nothing else, which is itself
 the asymmetry the gate exists to exploit: silence is cheap for the counterparty
 and expensive for whoever is waiting.
 
-### The number a judge will see, and when
+### The number you will get, and when
 
 Reliability is **0.1666** against a bar of **0.4669**, evaluated at block
 51,120,396 on 2026-09-10.
@@ -409,7 +426,7 @@ Reliability is **0.1666** against a bar of **0.4669**, evaluated at block
 That figure will not be what you get. A broken promise halves in weight each
 day, so reliability climbs back toward the prior as the evidence ages:
 
-| Running the command on | p_respond | Gate |
+| Run the command on | p_respond | Gate |
 |---|---|---|
 | 2026-09-10 | 0.1666 | refuses |
 | 2026-09-11 | 0.2170 | refuses |
@@ -464,29 +481,44 @@ ablation table, which runs over 18,360 historical jobs that had no declarations
 to coordinate on. An eighteen-job result and an eighteen-thousand-job result do
 not belong in the same table.
 
-### Two things running it for real exposed
+## What broke, and what each break taught
 
-**Nothing expires an unanswered job.** `JobExpired` needs someone to send a
-transaction, and nobody does. Only 3,112 of the 40,161 scanned jobs that never
-reached `BudgetSet` ever emitted one, about 8%, so the observer would have
-waited forever for a funeral that never happens and a broken promise could
-never have been recorded. It now reads the deadline from `expired_at` on the
-job's own `JobCreated` event against block time, which needs no one's
-cooperation.
+Running this against a live chain with a counterparty that lies produced eight
+distinct failures. Every one of them is fixed, and the fixes are in the commit
+history.
 
-**Killing these agents leaves orphans.** `npm start` spawns a `tsx` child that
-survives when the wrapper dies. Four Digest instances accumulated during
-testing, and two of them accepting the same job is what produced a double
-`BudgetSet` on job 76935. If you run this, check for strays before concluding
-anything from a strange result.
+| What broke | Why | What it changed |
+|---|---|---|
+| **Nothing expires an unanswered job** | `JobExpired` needs someone to send a transaction and nobody does. Only 3,112 of the 40,161 jobs that never reached `BudgetSet` emitted one, about 8% | The observer waited forever for a funeral that never happens, so a broken promise could never be recorded. It reads `expired_at` against block time now, which needs no one's cooperation |
+| **The gate blocked its own evidence** | After one kept and two broken promises reliability sits below the bar, so no further job can be created, and only a job produces an observation | The collection harness bypasses the gate, and the limitation is written up above as the selective labels problem instead of hidden |
+| **Killing an agent leaves orphans** | `npm start` spawns a `tsx` child that survives the wrapper | Four Digest instances accumulated, and two of them accepting one job produced a double `BudgetSet` on job 76935. The harness kills the process tree |
+| **A duplicate job on a restart** | The SDK rebuilds sessions for in-flight jobs, so creating another piles a second on top | A guard that resumes instead of creating. This is the bug that guard exists for |
+| **The guard then blocked everything** | `JobSession.status` reads the event log, so a job nobody answered stays `open` forever | One unanswered counterparty would have blocked every future job permanently. A job past its own `expired_at` is treated as dead |
+| **A faulted hire never exits** | `hire.ts` stops on completed, rejected or expired, and a job nobody answers emits none of them | The harness takes the job id and stops the buyer, since the job is already on chain and silence is the point |
+| **The RPC user agent was 403ed** | The string `priors/1.0` is filtered by every public Base endpoint | A clean clone would have got `403 Forbidden` and nothing else. Fixed, along with a chunk size that draws `413 Payload Too Large` |
+| **Two fallback endpoints do not serve `eth_getLogs`** | They answer `eth_blockNumber` happily, so they looked healthy | An endpoint answering one method says nothing about another. The list is now only what was probed with the method it is used for |
+
+Two of these are worth reading twice.
+
+**The gate blocked its own script**, before any fault had been injected, on
+four-day-old memory of two broken promises:
+
+```
+its record      : 3 observed of 6 declared
+will it respond : 0.4587 vs bar 0.4669 -> FAIL
+coordination declined a job Rules-v2 approved - no job created, nothing spent
+```
+
+**The duplicate-job guard and the deadline fix are opposites of each other**, and
+both are needed. Too eager and one dead job blocks the agent forever; too lax and
+a restart pays twice.
 
 ---
 
-## Verifying this yourself
+## Everything that is checkable
 
-The evidence page is hosted at
-[bzdmin.github.io/priors-acp](https://bzdmin.github.io/priors-acp/). The agent
-is not, since it holds a live wallet. What is verifiable:
+Ordered by how little you have to take on trust. The agent itself is not hosted,
+since it holds a live wallet.
 
 - **The jobs are permanently public on Base.** Look them up against ACP at
   `0x238e541bfefd82238730d00a2208e5497f1832e0`. Sixteen of them carry a
@@ -634,38 +666,25 @@ model.
 
 ---
 
-## Limitations
+## What is real and what is not
 
-**This is a backtest.** Every prediction was made before its outcome was read,
-and that ordering is structurally enforced. But the historical runs were made
-in fast-forward against scanned data rather than accumulated over months of
-live trading. The live tail is the exception and is labelled as such wherever
-it appears.
+| Claim | Status |
+|---|---|
+| Predictions written before outcomes exist | **Real, and structurally enforced.** Each block runs in three phases, absorb attributes, predict, absorb outcomes, so a prediction cannot see its own outcome. There is no check to forget to run |
+| 187 decisions changed by memory over 18,360 jobs | **Real, and reproducible from a clean clone.** The scan ships with the repo |
+| Deletion changes behaviour | **Real.** No `if memory_enabled` branch exists. Stages 2 and 3 have nothing to recall and the prediction falls back to stage 1 |
+| 21 jobs on Base mainnet | **Real, and permanent.** Including the one that does not exist |
+| Accumulated over months of live trading | **No.** The replay runs in fast forward against a scan of already-recorded history. The live tail is the exception and is labelled wherever it appears |
+| An independent counterparty | **No.** `digest/` is an agent I also operate. Both sides of every live job are mine |
+| Failures observed in the wild | **No.** Every one was injected through `DIGEST_FAULT_NEXT`, by hand and deterministically |
+| The live result measures whether Priors hires better | **No.** It measures whether the decision depends on what was remembered. n = 18, one counterparty, faults on purpose |
+| The collection ran through the gate | **No.** It bypassed it, because a gate that stops you transacting also stops you measuring. See the selective labels section |
+| The feature set was discovered by the miner | **No.** Individual rules are temporally clean, but the condition vocabulary they choose from was written by someone who had already analysed this dataset. That is a separate limitation from outcome leakage |
+| The aggregate improvement is large | **No.** Accuracy moves 0.9000 to 0.9035. Chain evidence alone already reaches 90%, and most of 18,360 jobs are easy calls that flatten any average. 187 of 18,360 is 1% of decisions, and the reversal count is the claim |
+| Audited | **No.** Hackathon-stage. Nothing here has had an external review |
 
-**A human is in this loop in four places, and it is the same limitation four
-times.** The live demonstration is orchestrated, not observed in the wild:
-
-- `digest/` is a provider agent I also operate, so when Priors hires Digest
-  both sides are mine.
-- Its failures were injected by hand through `DIGEST_FAULT_NEXT`, deliberately
-  and deterministically, rather than waited for.
-- The collection runs bypassed the response gate, because a gate that stops you
-  transacting also stops you measuring, as described above.
-- The rule miner's condition vocabulary was chosen by someone who had already
-  analysed this dataset. Individual rules are temporally clean, each applying
-  only to jobs funded after the evidence that formed it, but the menu they
-  chose from was written by a human who had seen the answers, which is a
-  separate limitation from outcome leakage.
-
-Together these mean the live result demonstrates that the decision depends on
-what was remembered. It is not evidence that Priors picks better counterparties
-in an open market, and nothing here claims it is. The 18,360-job replay is the
-part that runs without a hand on it.
-
-**The aggregate movement is small.** Accuracy moves 0.9000 to 0.9035, because
-chain evidence alone already reaches 90% and most of the 18,360 jobs are easy
-calls that drown out the hard ones in any average. The reversal count is the
-claim, and 187 of 18,360 is 1% of decisions.
+The 18,360-job replay is the part that runs with no hand on it. Everything
+involving Digest is a controlled demonstration and is described as one.
 
 ---
 
