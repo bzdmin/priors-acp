@@ -423,25 +423,25 @@
   <div class="wrap">
     <div class="label">The deletion test</div>
     <h2>Same code, same provider, same claim, different memory.</h2>
-    <p class="sub">A provider declared itself available 24 times, delivered twice, and went silent sixteen times. Priors was asked to hire it twice, with memory and without memory.</p>
+    <p class="sub">A provider declared itself available 24 times while it delivered twice and went silent sixteen times. Priors was asked to hire it twice, with memory and without memory.</p>
 
     <div class="split">
       <div class="pane intact">
         <div class="label is-intact">Memory intact</div>
-        <p class="said">Priors remembers this counterparty claiming availability 24 times and letting 16 of those jobs die unanswered.</p>
+        <p class="said">Priors remembers this provider claiming availability 24 times and letting 16 of those jobs die unanswered.</p>
         <div class="figure intact">0.1666</div>
-        <div class="label">will it respond at all &nbsp;·&nbsp; bar 0.4669</div>
+        <div class="label">0.1666 of the 0.4669 it needs to pass</div>
         <div class="verdict intact">NO JOB CREATED</div>
       </div>
       <div class="pane deleted">
         <div class="label is-deleted">Memory deleted</div>
         <p class="said">Identical binary, identical provider and identical declaration, with no record that any of it happened.</p>
         <div class="figure deleted">0.4669</div>
-        <div class="label">will it respond at all &nbsp;·&nbsp; bar 0.4669</div>
+        <div class="label">0.4669 of the 0.4669 it needs, exactly on the bar</div>
         <div class="verdict deleted">JOB CREATED</div>
       </div>
     </div>
-    <div class="same">Rules-v2 returned 0.7947 on both runs. Only the memory differed.</div>
+    <div class="same">Both runs scored 0.7947 on whether the job would complete, so the predictor never changed its mind. Only the memory differed.</div>
 
     <div class="note">
       <p><strong>The bar is not a tuned constant because it is 0.4669, and 0.4669 is the marketplace itself:</strong> 35,179 of 75,340 created jobs ever drew a provider response. An agent Priors has never met lands exactly on that bar and passes, so the deleted run clears by construction and not by a number picked to let it through.</p>
