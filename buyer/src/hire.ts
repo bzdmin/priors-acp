@@ -317,12 +317,33 @@ async function main(): Promise<void> {
   // whatever it left mid-flight. Creating another job here would quietly pile
   // a second one on top - which is exactly what happened on the first run of
   // this script, before this guard existed.
-  const inFlight = priors.sessions.filter(
+  //
+  // A job past its own deadline is not in flight, it is dead. `status` is
+  // derived from the event log alone, and returns "expired" only when a
+  // `job.expired` event exists. Nothing on ACP sends one: of the scanned jobs
+  // that never drew a provider response, only about 8% ever emitted
+  // JobExpired. So a single unanswered job would otherwise sit at "open"
+  // forever and block every job this agent would create after it.
+  const nowSeconds = BigInt(Math.floor(Date.now() / 1000));
+  const pastDeadline = (s: JobSession): boolean => {
+    const expiredAt = s.job?.expiredAt;
+    return expiredAt != null && expiredAt > 0n && expiredAt <= nowSeconds;
+  };
+
+  const openSessions = priors.sessions.filter(
     (s) =>
       s.chainId === CHAIN_ID &&
       s.roles.includes("client") &&
       !["completed", "rejected", "expired"].includes(s.status)
   );
+  const abandoned = openSessions.filter(pastDeadline);
+  const inFlight = openSessions.filter((s) => !pastDeadline(s));
+
+  for (const s of abandoned) {
+    log.info(
+      `job ${s.jobId} passed its deadline unanswered (status=${s.status}), not counting it as in flight`
+    );
+  }
   if (inFlight.length > 0) {
     log.info(`resuming ${inFlight.length} in-flight job(s), creating none:`);
     for (const s of inFlight) {
