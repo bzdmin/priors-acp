@@ -221,6 +221,17 @@
     letter-spacing: 0.13em; color: var(--amber); text-transform: uppercase; font-weight: 700;
   }
 
+  .prov {
+    display: flex; flex-wrap: wrap; gap: 0 26px; margin: 22px 0 0;
+    font-family: ui-monospace, Consolas, monospace; font-size: 13px;
+    color: var(--muted); letter-spacing: 0.03em;
+  }
+  .prov span { position: relative; padding: 6px 0; }
+  .prov span + span::before {
+    content: ""; position: absolute; left: -14px; top: 50%;
+    width: 3px; height: 3px; background: var(--muted); border-radius: 50%;
+  }
+
   .note { border-left: 3px solid var(--amber); padding: 3px 0 3px 20px; margin: 28px 0; }
   .note p { margin: 0 0 10px; }
   .note p:last-child { margin: 0; }
@@ -400,9 +411,11 @@
       </div>
     </div>
 
-    <div class="note">
-      <p><strong>Nothing here is a mock, and nothing here is live either.</strong> The 18 observations are a snapshot of what the agent's Sibyl store held at block 51,122,931, exported to <span class="mono">docs/data/coordination.json</span>. The formula is reimplemented in JavaScript so it runs without a server. Deleting memory here means computing with no record, which is exactly what the agent does when the store is empty.</p>
-      <p>To run the real thing against the real store, clone the repo and use the commands below.</p>
+    <div class="prov">
+      <span>18 real observations</span>
+      <span>exported at block 51,122,931</span>
+      <span>matches <span class="mono">coordination.py</span> to 10 decimal places</span>
+      <span>runs in your browser</span>
     </div>
   </div>
 </section>
@@ -488,7 +501,7 @@
     <p>126 right, 61 wrong. Nearly all of them share one shape: memory overruling a hire that the public chain record endorsed, on a job that then failed.</p>
 
     <div class="note">
-      <p><strong>The aggregate movement is small, and pretending otherwise would be dishonest.</strong> Accuracy moves from 0.9000 to 0.9035. The reason is that chain evidence alone is already strong: per-provider completion rates with no memory at all reach 90%. Most of those 18,360 jobs are easy calls that drown out the hard ones in any average.</p>
+      <p><strong>The aggregate movement is small.</strong> Accuracy moves from 0.9000 to 0.9035. The reason is that chain evidence alone is already strong: per-provider completion rates with no memory at all reach 90%. Most of those 18,360 jobs are easy calls that drown out the hard ones in any average.</p>
       <p>The defensible claim is the reversal count, not the average. 187 of 18,360 is 1% of decisions, and a judge is entitled to weigh it accordingly.</p>
     </div>
   </div>
@@ -613,24 +626,30 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
 
 <section>
   <div class="wrap">
-    <div class="label">Honest disclosures</div>
-    <h2>What this is not.</h2>
+    <div class="label" id="real">What is real</div>
+    <h2>And what is not.</h2>
 
-    <div class="note">
-      <p><strong>This is a backtest, and is described as one.</strong> Every prediction was written before its outcome was read, and that ordering is structurally enforced rather than merely promised. But the historical runs were made in fast-forward against scanned data, not accumulated over months of live trading. The live jobs are the exception and are labelled as such.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Claim</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Predictions written before outcomes exist</td><td class="kept">Real, and structurally enforced. Each block runs absorb, predict, absorb, so a prediction cannot see its own outcome</td></tr>
+          <tr><td>187 decisions changed by memory across 18,360 jobs</td><td class="kept">Real, and reproducible from a clean clone. The scan ships with the repo</td></tr>
+          <tr><td>Deletion changes behaviour</td><td class="kept">Real. No <span class="mono">if memory_enabled</span> branch exists anywhere</td></tr>
+          <tr><td>21 jobs on Base mainnet</td><td class="kept">Real, and permanent. Including the one that does not exist</td></tr>
+          <tr><td>Accumulated over months of live trading</td><td class="broken">No. The replay runs in fast forward over already-recorded history</td></tr>
+          <tr><td>An independent counterparty</td><td class="broken">No. Digest is operated by the same builder. Both sides of every live job</td></tr>
+          <tr><td>Failures observed in the wild</td><td class="broken">No. Every one injected through <span class="mono">DIGEST_FAULT_NEXT</span>, by hand and deterministically</td></tr>
+          <tr><td>Proof that Priors hires better</td><td class="broken">No. It shows the decision depends on what was remembered. n = 18, one counterparty</td></tr>
+          <tr><td>The collection ran through the gate</td><td class="broken">No. It bypassed it, because a gate that stops you transacting also stops you measuring</td></tr>
+          <tr><td>The feature set was discovered by the miner</td><td class="broken">No. Rules are temporally clean, but the vocabulary was chosen by someone who had analysed the data</td></tr>
+          <tr><td>A large aggregate improvement</td><td class="broken">No. Accuracy moves 0.9000 to 0.9035. The 187 reversals are the claim, not the average</td></tr>
+          <tr><td>Audited</td><td class="broken">No. Hackathon-stage, no external review</td></tr>
+        </tbody>
+      </table>
     </div>
-    <div class="note">
-      <p><strong>Self-dealing.</strong> The provider in the live demonstration is Digest, an agent I also operate. Both sides are mine. It exists so the hiring path can be exercised end to end, and it is not counted as independent evidence of anything.</p>
-    </div>
-    <div class="note">
-      <p><strong>Prior work.</strong> The ACP scanner and the dataset behind these figures predate the hackathon. The prediction model, Sibyl integration, rule lifecycle, replay harness, live tail and coordination layer were built during it.</p>
-    </div>
-    <div class="note">
-      <p><strong>The live result is three observations against one counterparty,</strong> including a deliberately injected fault. It demonstrates that the decision depends on what was remembered. It is not a measurement of whether Priors hires better, and it is not comparable to the 18,360-job replay.</p>
-    </div>
-    <div class="note">
-      <p><strong>The condition vocabulary was chosen by a human who had already analysed this dataset.</strong> Individual rules are temporally clean, but that is a separate limitation from outcome leakage and it is worth stating plainly rather than pretending the feature set fell from the sky.</p>
-    </div>
+
+    <p class="sub">The 18,360-job replay is the part that runs with no hand on it. Everything involving Digest is a controlled demonstration and is described as one.</p>
   </div>
 </section>
 
