@@ -16,6 +16,8 @@
 <meta name="twitter:description" content="An ACP buyer agent that predicts whether a job will complete before it hires. Delete its memory and it demonstrably behaves differently.">
 <title>Priors</title>
 <style>
+  html, body { overflow-x: hidden; max-width: 100%; }
+
   :root {
     --ink:      #fbfaf7;
     --alt:      #f4f1ea;
@@ -416,6 +418,61 @@
   .totop:hover { border-bottom-color: var(--amber); }
 
   footer { padding: 62px 0 84px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+
+  /* ---- narrow screens -------------------------------------------------
+     A judge may open this from a Discord link on a phone. Nothing below
+     changes what the page says, only how much room each part takes. */
+  @media (max-width: 760px) {
+    .wrap { padding: 0 18px; }
+    section { padding: 56px 0; }
+
+    /* the masthead: the figure and its caption stack instead of sitting
+       side by side, where the caption was being squeezed to two words wide */
+    .bignum { gap: 14px; margin: 4px 0 18px; }
+    .bignum .n { font-size: clamp(52px, 17vw, 96px); }
+    .bignum .of { font-size: 19px; max-width: none; }
+    .bignum + h2 { margin: 0 0 28px; max-width: none; }
+
+    .hero { padding: 40px 0 46px; }
+    .hero h1 { max-width: none; }
+    .cta { margin-top: 26px; }
+    .btn { flex: 1 1 auto; text-align: center; }
+
+    /* the verb strip wraps under the wordmark rather than crushing it */
+    .bar { align-items: flex-start; }
+    .verbs { gap: 16px; flex-wrap: wrap; }
+
+    .stat { padding: 26px 0 28px; }
+    .stats-foot { padding: 0 18px 24px; }
+
+    .pane { padding: 24px 20px; }
+    .col { padding: 22px 20px 26px; }
+    .desk-head, .desk-obs, .desk-foot { padding: 20px; }
+    .cards { grid-template-columns: 1fr; }
+    .obs-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+
+    pre { padding: 16px; font-size: 12px; }
+    .formula { font-size: 13.5px; }
+    .note { padding-left: 15px; }
+
+    /* tables keep their min-width and scroll inside their own box, so the
+       page itself never scrolls sideways. Say so, or it looks broken. */
+    .scroll { position: relative; }
+    .scroll::after {
+      content: "swipe to see the rest";
+      display: block; margin-top: 8px;
+      font-family: ui-monospace, Consolas, monospace; font-size: 11px;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .stat + .stat { border-top: 1px solid var(--line); }
+    .stat + .stat::before { display: none; }
+    .verbs a { font-size: 12px; letter-spacing: 0.14em; }
+    .foot-links { gap: 12px; }
+  }
 </style>
 </head>
 <body>
