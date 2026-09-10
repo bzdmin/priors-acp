@@ -501,11 +501,11 @@
         <span class="wordmark">PRIOR<span class="sibyl-s" title="Built on Sibyl Memory">S</span></span>
       </a>
       <nav class="sitenav" aria-label="Sections">
-        <a href="#test">Deletion test</a>
-        <a href="#try">Try it</a>
         <a href="#ask">The problem</a>
-        <a href="#rebuild">The journal</a>
-        <a href="#check">Reproduce</a>
+        <a href="#record">How it works</a>
+        <a href="#test">The deletion test</a>
+        <a href="#refuse">What it refuses</a>
+        <a href="#check">Run it</a>
       </nav>
       <a class="repo-btn" href="https://github.com/bzdmin/priors-acp">View repo</a>
     </div>
@@ -535,7 +535,74 @@
   </div>
 </header>
 
-<section style="border-top: none;">
+<section>
+  <div class="wrap">
+    <div class="label" id="ask">Why the gate exists</div>
+    <div class="bignum">
+      <div class="n">40,161</div>
+      <div class="of">of 75,340 ACP jobs never get a provider response at all</div>
+    </div>
+    <h2>Most jobs die in silence</h2>
+    <p>Of 75,340 jobs created only 18,367 were funded, and of the 56,973 that died, <strong>40,161 drew no provider response at all</strong> while 16,812 got an answer but never reached funding.</p>
+    <p>Predicting whether a job completes does nothing about that, so Priors asks first and weighs the answer against its record of the same provider's earlier ones.</p>
+    <p class="sub">Response means one specific thing here: a <span class="mono">BudgetSet</span> event, which is the first move a provider makes on a job, before any money is escrowed. The event records the job but not who set the budget, so these are counted as responses and Priors does not claim the provider ignored anyone.</p>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="label" id="record">How it works</div>
+    <h2>Three stages, one survives</h2>
+
+<pre>chain evidence        this provider completed 110 of 168 funded jobs
+      |               shrunk toward the 0.7947 market base rate
+      v               SURVIVES DELETION
+   0.6626
+      |
+      +-> rules Priors wrote from its own errors    ACTS ON THE DECISION
+      |   R-36, R-37, R-38          -> 0.0100       DELETED WITH MEMORY
+      |
+      +-> calibration of its own confidence         REPORTED, NEVER APPLIED
+      v
+  DO NOT HIRE                       actual outcome: FAILED</pre>
+
+    <div class="cards">
+      <div class="card">
+        <div class="k">Stage 1</div>
+        <h3>Chain evidence</h3>
+        <p>Per-provider completion rates, shrunk toward the market base rate so a provider with 3 jobs is not read like one with 300. Public data. Works with memory deleted.</p>
+      </div>
+      <div class="card">
+        <div class="k">Stage 2</div>
+        <h3>Rules from its own errors</h3>
+        <p>Mined from Priors' own resolved mistakes, running pattern to provisional to graduated or demoted, with each rule applying only to jobs funded after the evidence that formed it.</p>
+      </div>
+      <div class="card">
+        <div class="k">Stage 3</div>
+        <h3>Calibration</h3>
+        <p>Priors' record of how its own confidence has held up. Measured, kept, and deliberately not allowed to move the decision.</p>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Rule lifecycle over the full replay</th><th>Count</th></tr></thead>
+        <tbody>
+          <tr><td>rules created</td><td class="num">156</td></tr>
+          <tr><td>still provisional</td><td class="num">117</td></tr>
+          <tr><td>graduated to full weight</td><td class="num">16</td></tr>
+          <tr><td>demoted after failing in the field</td><td class="num">23</td></tr>
+          <tr><td>distinct providers with rules</td><td class="num">51</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sub">156 is the total, and the three states below it are that same 156 split up: 117 + 16 + 23. Every rule is in exactly one of them at the end of the replay, spread across 51 providers.</p>
+    <p class="sub">Nobody can write the record that scores their own claim. Priors writes decisions and requests, the resolver writes episodes and observations, and the counterparty can only declare. That separation is enforced by the API surface itself and pinned by tests.</p>
+  </div>
+</section>
+
+<section>
   <div class="wrap">
     <div class="label" id="test">The deletion test</div>
     <h2>Delete the memory, get a different answer</h2>
@@ -567,8 +634,8 @@
 
 <section class="alt">
   <div class="wrap">
-    <div class="label" id="try">Live</div>
-    <h2>Try it</h2>
+    <div class="label" id="try">The same test, running</div>
+    <h2>Move the slider</h2>
     <p class="sub">Eighteen observations of one provider, every one of them a job on Base.</p>
 
     <p class="instruct">Both columns run the same code, on the same request, against the same provider. The only difference is whether the agent can remember the last eighteen times it dealt with them.</p>
@@ -684,20 +751,6 @@
 
 <section class="alt">
   <div class="wrap">
-    <div class="label" id="ask">Why the gate exists</div>
-    <div class="bignum">
-      <div class="n">40,161</div>
-      <div class="of">of 75,340 ACP jobs never get a provider response at all</div>
-    </div>
-    <h2>Most jobs die in silence</h2>
-    <p>Of 75,340 jobs created only 18,367 were funded, and of the 56,973 that died, <strong>40,161 drew no provider response at all</strong> while 16,812 got an answer but never reached funding.</p>
-    <p>Predicting whether a job completes does nothing about that, so Priors asks first and weighs the answer against its record of the same provider's earlier ones.</p>
-    <p class="sub">Response means one specific thing here: a <span class="mono">BudgetSet</span> event, which is the first move a provider makes on a job, before any money is escrowed. The event records the job but not who set the budget, so these are counted as responses and Priors does not claim the provider ignored anyone.</p>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
     <div class="label" id="recall">At scale</div>
     <h2>What memory changed</h2>
     <p class="sub">Both runs are the same code, and the deleted run is never handicapped.</p>
@@ -721,59 +774,6 @@
       <p>Accuracy moves only 0.9000 to 0.9035, because the run without memory is already strong. That run still scans 6.3 million blocks, decodes every ACP event, builds per-provider counters and shrinks them toward the market rate. It is Priors with stages 2 and 3 removed, not a chain lookup, so nothing you could read off BaseScan comes near it. Against a baseline like that, 1,836 wrong calls remain out of 18,360 and memory takes 64 of them, on a problem where hiring everything already gets 14,597 of 18,367 right.</p>
       <p>This table is also only half of it. The <a href="#ask">40,161 jobs that draw no response</a> are invisible to a completion score, and on that side deletion moves the number from <a href="#test">0.1666 to 0.4669</a>, which you can <a href="#try">run yourself</a>.</p>
     </div>
-  </div>
-</section>
-
-<section class="alt">
-  <div class="wrap">
-    <div class="label" id="record">How it works</div>
-    <h2>Three stages, one survives</h2>
-
-<pre>chain evidence        this provider completed 110 of 168 funded jobs
-      |               shrunk toward the 0.7947 market base rate
-      v               SURVIVES DELETION
-   0.6626
-      |
-      +-> rules Priors wrote from its own errors    ACTS ON THE DECISION
-      |   R-36, R-37, R-38          -> 0.0100       DELETED WITH MEMORY
-      |
-      +-> calibration of its own confidence         REPORTED, NEVER APPLIED
-      v
-  DO NOT HIRE                       actual outcome: FAILED</pre>
-
-    <div class="cards">
-      <div class="card">
-        <div class="k">Stage 1</div>
-        <h3>Chain evidence</h3>
-        <p>Per-provider completion rates, shrunk toward the market base rate so a provider with 3 jobs is not read like one with 300. Public data. Works with memory deleted.</p>
-      </div>
-      <div class="card">
-        <div class="k">Stage 2</div>
-        <h3>Rules from its own errors</h3>
-        <p>Mined from Priors' own resolved mistakes, running pattern to provisional to graduated or demoted, with each rule applying only to jobs funded after the evidence that formed it.</p>
-      </div>
-      <div class="card">
-        <div class="k">Stage 3</div>
-        <h3>Calibration</h3>
-        <p>Priors' record of how its own confidence has held up. Measured, kept, and deliberately not allowed to move the decision.</p>
-      </div>
-    </div>
-
-    <div class="scroll">
-      <table>
-        <thead><tr><th>Rule lifecycle over the full replay</th><th>Count</th></tr></thead>
-        <tbody>
-          <tr><td>rules created</td><td class="num">156</td></tr>
-          <tr><td>still provisional</td><td class="num">117</td></tr>
-          <tr><td>graduated to full weight</td><td class="num">16</td></tr>
-          <tr><td>demoted after failing in the field</td><td class="num">23</td></tr>
-          <tr><td>distinct providers with rules</td><td class="num">51</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="sub">156 is the total, and the three states below it are that same 156 split up: 117 + 16 + 23. Every rule is in exactly one of them at the end of the replay, spread across 51 providers.</p>
-    <p class="sub">Nobody can write the record that scores their own claim. Priors writes decisions and requests, the resolver writes episodes and observations, and the counterparty can only declare. That separation is enforced by the API surface itself and pinned by tests.</p>
   </div>
 </section>
 
@@ -803,10 +803,10 @@
   </div>
 </section>
 
-<section>
+<section class="alt">
   <div class="wrap">
     <div class="label" id="rebuild">The journal is the truth</div>
-    <h2>Delete the summary, it comes back</h2>
+    <h2>The summary is disposable</h2>
     <p class="sub">Priors stores two things. The journal is append-only: one decision per funded job, one episode per resolved job, never edited. The provider records and rules are a summary, rewritten in place every time something changes. The journal is written first, so if a process dies between the two the record survives and the summary can be rebuilt.</p>
 
 <pre>$ python scripts/rebuild_from_journal.py
@@ -824,10 +824,10 @@
   </div>
 </section>
 
-<section class="alt">
+<section>
   <div class="wrap">
     <div class="label" id="check">Reproduce it</div>
-    <h2>Three ways</h2>
+    <h2>Run it on your own machine</h2>
 
     <div class="cards">
       <div class="card">
@@ -862,6 +862,34 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
   </div>
 </section>
 
+<section class="alt">
+  <div class="wrap">
+    <div class="label" id="reuse">Reusable</div>
+    <h2>Three files worth stealing</h2>
+    <p class="sub">Priors is an agent, not a package, and there is nothing to install. Three pieces are self-contained enough to lift.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="k">The gate</div>
+        <h3><span class="mono">priors/coordination.py</span></h3>
+        <p>205 lines, no dependencies beyond the standard library. Ask a counterparty whether it can take the work, weigh the answer against its record, decay the evidence. It knows nothing about ACP and takes a list of observations.</p>
+      </div>
+      <div class="card">
+        <div class="k">The write split</div>
+        <h3><span class="mono">priors/memory.py</span></h3>
+        <p>Three handles over one store, so the party being scored cannot write the score. The counterparty's handle has one method. If you take one idea from this repo, take this one.</p>
+      </div>
+      <div class="card">
+        <div class="k">The chain reader</div>
+        <h3><span class="mono">priors/chain.py</span></h3>
+        <p>ACP events off Base with <span class="mono">eth_getLogs</span> and no web3 dependency. Reorg-safe at 30 confirmations, discovers each endpoint's span limit, survives the user-agent filtering.</p>
+      </div>
+    </div>
+
+    <p class="sub">All MIT. What is not reusable is the predictor: its rules were mined from this marketplace and mean nothing anywhere else.</p>
+  </div>
+</section>
+
 <section>
   <div class="wrap">
     <div class="label" id="real">Claims</div>
@@ -887,34 +915,6 @@ python scripts/ablation.py                   <span style="color:var(--muted)"># 
     </div>
 
     <p class="sub">The 18,360-job replay is the part that runs with no hand on it. Everything involving Digest is a controlled demonstration.</p>
-  </div>
-</section>
-
-<section class="alt">
-  <div class="wrap">
-    <div class="label" id="reuse">Take the parts</div>
-    <h2>Use it in your own agent</h2>
-    <p class="sub">Priors is an agent, not a package, and there is nothing to install. Three pieces are self-contained enough to lift.</p>
-
-    <div class="cards">
-      <div class="card">
-        <div class="k">The gate</div>
-        <h3><span class="mono">priors/coordination.py</span></h3>
-        <p>205 lines, no dependencies beyond the standard library. Ask a counterparty whether it can take the work, weigh the answer against its record, decay the evidence. It knows nothing about ACP and takes a list of observations.</p>
-      </div>
-      <div class="card">
-        <div class="k">The write split</div>
-        <h3><span class="mono">priors/memory.py</span></h3>
-        <p>Three handles over one store, so the party being scored cannot write the score. The counterparty's handle has one method. If you take one idea from this repo, take this one.</p>
-      </div>
-      <div class="card">
-        <div class="k">The chain reader</div>
-        <h3><span class="mono">priors/chain.py</span></h3>
-        <p>ACP events off Base with <span class="mono">eth_getLogs</span> and no web3 dependency. Reorg-safe at 30 confirmations, discovers each endpoint's span limit, survives the user-agent filtering.</p>
-      </div>
-    </div>
-
-    <p class="sub">All MIT. What is not reusable is the predictor: its rules were mined from this marketplace and mean nothing anywhere else.</p>
   </div>
 </section>
 
